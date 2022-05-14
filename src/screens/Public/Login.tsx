@@ -35,8 +35,11 @@ import {
 } from 'native-base';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {CountryCode} from '../../constants';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {PublicRoutesType} from 'routes';
 
-const Login = () => {
+type Props = NativeStackScreenProps<PublicRoutesType, 'Login'>;
+const Login = ({navigation}: Props) => {
   const {
     control,
     handleSubmit,
@@ -110,12 +113,12 @@ const Login = () => {
         ]}>
         <ScrollView>
           <Box
-            alignItems={'center'}
+            // alignItems={'center'}
             justifyContent={'center'}
             bg={COLORS.primary}
             w={'100%'}
             h={Dimensions.get('window').height / 3}
-            borderBottomRightRadius={250}>
+            borderBottomRightRadius={220}>
             <Box alignItems={'center'}>
               <Image
                 alt="logo"
@@ -137,7 +140,7 @@ const Login = () => {
             </Box>
           </Box>
 
-          <Box alignItems={'center'} mt={7}>
+          <Box alignItems={'center'} mt={12} mb={2}>
             <VStack>
               <Heading
                 color={COLORS.primary}
@@ -151,8 +154,9 @@ const Login = () => {
                   fontSize: 17,
                   color: COLORS.fadeBlack,
                   fontFamily: 'Nunito-Regular',
+                  fontWeight: '200',
                 }}>
-                Login or Create account quickly to manage your orders
+                Login or Create account quickly to manage your chat
               </Text>
 
               <Stack mt={5} space={2}>
@@ -187,7 +191,7 @@ const Login = () => {
                             </Heading>
                           </Pressable>
                         }
-                        borderRadius={10}
+                        borderRadius={30}
                         padding={3}
                         bg={COLORS.transparent}
                         shadow={3}
@@ -236,14 +240,13 @@ const Login = () => {
 
               <TouchableOpacity
                 style={GlobalStyles.m_t_10}
-                // onPress={() => navigation.navigate('Register')}
-              >
+                onPress={() => navigation.navigate('Register')}>
                 <Heading
                   mt={1}
                   textAlign={'center'}
                   size={'sm'}
                   color={'#133373'}
-                  fontFamily="Nunito-Regular"
+                  fontFamily="Nunito-Bold"
                   fontWeight={200}>
                   Don't have an account? Sign Up
                 </Heading>
