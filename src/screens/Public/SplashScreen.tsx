@@ -30,17 +30,16 @@ const SplashScreen = ({navigation}: Props) => {
       <Box flex={1} justifyContent={'center'}>
         <Box>
           <Image
-            h={60}
+            h={100}
             w={'100%'}
             alt="logo"
             source={LOGO}
-            resizeMode={'cover'}
+            resizeMode={'contain'}
           />
         </Box>
         <Box alignItems={'center'} mr={2}>
           <Box w={'60%'}>
-            {/* <Image alt="loader" source={Loader} resizeMode={'contain'} /> */}
-            <Progress colorScheme="secondary" value={count} />
+            <Progress colorScheme="primary" value={count} />
           </Box>
         </Box>
       </Box>
