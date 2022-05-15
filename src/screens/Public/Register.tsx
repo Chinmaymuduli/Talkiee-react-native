@@ -39,9 +39,9 @@ import {
 import {CountryCode} from '../../constants';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PublicRoutesType} from 'routes';
-import LinearGradient from 'react-native-linear-gradient';
-import auth from '@react-native-firebase/auth';
-import {useAppContext} from 'context';
+// import LinearGradient from 'react-native-linear-gradient';
+// import auth from '@react-native-firebase/auth';
+// import {useAppContext} from 'context';
 
 type Props = NativeStackScreenProps<PublicRoutesType, 'Register'>;
 
@@ -61,7 +61,7 @@ const Register = ({navigation}: Props) => {
     formState: {errors},
   } = useForm();
 
-  const {setConfirm} = useAppContext();
+  // const {setConfirm} = useAppContext();
 
   const onSubmit = async (data: any) => {
     // console.log('object', data);
@@ -73,18 +73,19 @@ const Register = ({navigation}: Props) => {
       password: data?.Password,
       countryCode: phoneCode,
     };
-
-    try {
-      setLoader(true);
-      const phoneNumber = `${phoneCode}${data.Number}`;
-      const confirmation: any = await auth().signInWithPhoneNumber(phoneNumber);
-      setConfirm(confirmation);
-      navigation.navigate('VerifyOtp', registerData);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoader(false);
-    }
+    console.log('test', registerData);
+    // try {
+    //   setLoader(true);
+    //   const phoneNumber = `${phoneCode}${data.Number}`;
+    //   console.log('object', phoneNumber);
+    //   const confirmation: any = await auth().signInWithPhoneNumber(phoneNumber);
+    //   setConfirm(confirmation);
+    //   navigation.navigate('VerifyOtp', registerData);
+    // } catch (error) {
+    //   console.log(error);
+    // } finally {
+    //   setLoader(false);
+    // }
   };
 
   // const renderTopSection = () => {
