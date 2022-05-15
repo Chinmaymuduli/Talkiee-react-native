@@ -1,6 +1,7 @@
 export { default as Security } from './animation/security.json'
 export { default as groupChat } from './animation/groupChat.json'
 export { default as chattingAnimation } from './animation/chattingAnimation.json'
+export { default as success } from './animation/success.json'
 
 
 

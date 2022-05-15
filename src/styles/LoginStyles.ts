@@ -40,7 +40,7 @@ const LoginStyles = StyleSheet.create({
     marginTop: 3,
     padding: 12,
     textAlign: 'center',
-    borderRadius: 5,
+    borderRadius: 15,
     shadowOffset: { height: 2, width: 2 }, // IOS
     shadowOpacity: 5, // IOS
     shadowRadius: 5, //IOS
