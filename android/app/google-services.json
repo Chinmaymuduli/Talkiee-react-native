@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:217026674701:android:e47efbbae983f353229544",
+        "mobilesdk_app_id": "1:217026674701:android:895698d4bf1c245d229544",
         "android_client_info": {
-          "package_name": "com.myawesomeapp"
+          "package_name": "com.talkiee"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "217026674701-ccvaj0qb1fvcghc7misr1u810git08o5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.talkiee",
+            "certificate_hash": "06f13dc049b72cfbf13ae702fa4378e49a53b808"
+          }
+        },
         {
           "client_id": "217026674701-amdejs4e2k5po4qn8a9v8np0ojldud1g.apps.googleusercontent.com",
           "client_type": 3

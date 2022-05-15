@@ -35,12 +35,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.myawesomeapp",
+    package = "com.talkiee",
 )
 
 android_resource(
     name = "res",
-    package = "com.myawesomeapp",
+    package = "com.talkiee",
     res = "src/main/res",
 )
 

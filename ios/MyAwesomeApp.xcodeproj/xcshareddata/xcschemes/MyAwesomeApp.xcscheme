@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "MyAwesomeApp.app"
-               BlueprintName = "MyAwesomeApp"
-               ReferencedContainer = "container:MyAwesomeApp.xcodeproj">
+               BuildableName = "talkiee.app"
+               BlueprintName = "talkiee"
+               ReferencedContainer = "container:talkiee.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MyAwesomeAppTests.xctest"
-               BlueprintName = "MyAwesomeAppTests"
-               ReferencedContainer = "container:MyAwesomeApp.xcodeproj">
+               BuildableName = "talkieeTests.xctest"
+               BlueprintName = "talkieeTests"
+               ReferencedContainer = "container:talkiee.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MyAwesomeApp.app"
-            BlueprintName = "MyAwesomeApp"
-            ReferencedContainer = "container:MyAwesomeApp.xcodeproj">
+            BuildableName = "talkiee.app"
+            BlueprintName = "talkiee"
+            ReferencedContainer = "container:talkiee.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MyAwesomeApp.app"
-            BlueprintName = "MyAwesomeApp"
-            ReferencedContainer = "container:MyAwesomeApp.xcodeproj">
+            BuildableName = "talkiee.app"
+            BlueprintName = "talkiee"
+            ReferencedContainer = "container:talkiee.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
