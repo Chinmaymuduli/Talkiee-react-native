@@ -19,21 +19,21 @@ import {success} from 'assets';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PublicRoutesType} from 'routes';
+import {useAppContext} from 'context';
 // import {useAppContext} from 'contexts';
 // import database from '@react-native-firebase/database';
 // import {RootRouteProp} from '../types/RouteType';
-// import auth from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 type Props = NativeStackScreenProps<PublicRoutesType, 'VerifyOtp'>;
 
 const VerifyOtp = ({navigation, route}: Props) => {
+  // console.log('route', route.params);
   let outInput = useRef(null);
-  // const {setConfirm, confirm} = useAppContext();
-  // const navigation = useNavigation();
   const [code, setCode] = React.useState('');
   const [loader, setLoader] = React.useState(false);
-  // const route = useRoute<RootRouteProp<'VerifyOtp'>>();
   const [minutes, setMinutes] = useState(2);
   const [seconds, setSeconds] = useState(0);
+  const {confirm, setConfirm} = useAppContext();
 
   useEffect(() => {
     let myInterval = setInterval(() => {
@@ -54,42 +54,54 @@ const VerifyOtp = ({navigation, route}: Props) => {
     };
   });
 
-  // const ConfirmOtp = async () => {
-  //   try {
-  //     setLoader(true);
-  //     const res = await confirm?.confirm(code);
-  //     const userData = {
-  //       displayName: route.params?.name,
-  //       email: route.params?.email,
-  //       phoneNumber: route.params?.number.trim(),
-  //       role: route.params?.role,
-  //       countryCode: route.params?.countryCode,
-  //       refCode: route.params?.refCode,
-  //       timeStamp: Date.now(),
-  //       uid: res?.user.uid,
-  //     };
+  const ConfirmOtp = async () => {
+    try {
+      setLoader(true);
+      await confirm?.confirm(code);
+      // console.log('confirm');
+      const token = await auth().currentUser?.getIdToken(true);
 
-  //     !route.params?.login &&
-  //       (await database().ref(`Users/${res?.user.uid}`).set(userData));
+      // console.log('token', token);
+      const userData = {
+        name: route.params?.name,
+        email: route.params?.email,
+        phone: route.params?.number.trim(),
+        gender: route.params?.gender,
+        password: route.params?.password,
+        countryCode: route.params?.countryCode,
+        idToken: token,
+      };
+      //fetch request
+      const response = await fetch('https://talkieeapp.herokuapp.com/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      const data = await response.json();
+      console.log('data', data);
+      // !route.params?.login &&
+      //   (await database().ref(`Users/${res?.user.uid}`).set(userData));
 
-  //     navigation.navigate('Home');
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     setLoader(false);
-  //   }
-  // };
+      // navigation.navigate('Home')
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoader(false);
+    }
+  };
 
   // Resend Otp
-  // const ResendOTP = async () => {
-  //   try {
-  //     const phoneNumber = `${route.params?.countryCode}${route.params?.number}`;
-  //     const conformation = await auth().signInWithPhoneNumber(phoneNumber);
-  //     setConfirm(conformation);
-  //   } catch (error) {
-  //     Alert.alert('Error', 'Too many requests sent. Please try again later.');
-  //   }
-  // };
+  const ResendOTP = async () => {
+    try {
+      const phoneNumber = `${route.params?.countryCode}${route.params?.number}`;
+      const conformation = await auth().signInWithPhoneNumber(phoneNumber);
+      setConfirm(conformation);
+    } catch (error) {
+      Alert.alert('Error', 'Too many requests sent. Please try again later.');
+    }
+  };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: COLORS.textWhite}}>
       <Center w={'full'} h={Dimensions.get('window').height * 0.2} mt={16}>
@@ -123,9 +135,7 @@ const VerifyOtp = ({navigation, route}: Props) => {
             Didn't receive the code ?
           </Text>
           {minutes === 0 && seconds === 0 ? (
-            <TouchableOpacity
-            // onPress={() => ResendOTP()}
-            >
+            <TouchableOpacity onPress={() => ResendOTP()}>
               <Text fontSize={18} bold color={COLORS.primary}>
                 Request again
               </Text>
@@ -150,7 +160,7 @@ const VerifyOtp = ({navigation, route}: Props) => {
           </HStack>
         ) : (
           <Button
-            // onPress={() => ConfirmOtp()}
+            onPress={() => ConfirmOtp()}
             style={LoginStyles.sendOtpButton}
             fontSize={18}
             color={COLORS.textWhite}

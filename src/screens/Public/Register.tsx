@@ -9,6 +9,7 @@ import {Controller, useForm} from 'react-hook-form';
 // import {registration} from '../assets';
 import {COLORS} from 'configs';
 import {
+  Alert,
   Dimensions,
   Modal,
   SafeAreaView,
@@ -42,6 +43,8 @@ import {PublicRoutesType} from 'routes';
 // import LinearGradient from 'react-native-linear-gradient';
 // import auth from '@react-native-firebase/auth';
 // import {useAppContext} from 'context';
+import auth from '@react-native-firebase/auth';
+import {useAppContext} from 'context';
 
 type Props = NativeStackScreenProps<PublicRoutesType, 'Register'>;
 
@@ -53,7 +56,6 @@ const Register = ({navigation}: Props) => {
   const [countryData, setCountryData] = useState<any>([]);
   const [countryLabel, setCountryLabel] = useState('IN');
   const [gender, setGender] = useState('male');
-  // console.log('countryData', countryLabel);
   const totalCountry = CountryCode;
   const {
     control,
@@ -61,10 +63,9 @@ const Register = ({navigation}: Props) => {
     formState: {errors},
   } = useForm();
 
-  // const {setConfirm} = useAppContext();
+  const {setConfirm} = useAppContext();
 
   const onSubmit = async (data: any) => {
-    // console.log('object', data);
     const registerData = {
       name: data?.Name,
       email: data?.Email,
@@ -72,41 +73,20 @@ const Register = ({navigation}: Props) => {
       gender: gender,
       password: data?.Password,
       countryCode: phoneCode,
+      isRegister: true,
     };
-    console.log('test', registerData);
-    // try {
-    //   setLoader(true);
-    //   const phoneNumber = `${phoneCode}${data.Number}`;
-    //   console.log('object', phoneNumber);
-    //   const confirmation: any = await auth().signInWithPhoneNumber(phoneNumber);
-    //   setConfirm(confirmation);
-    //   navigation.navigate('VerifyOtp', registerData);
-    // } catch (error) {
-    //   console.log(error);
-    // } finally {
-    //   setLoader(false);
-    // }
+    try {
+      setLoader(true);
+      const phoneNumber = `${phoneCode}${data.Number}`;
+      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+      setConfirm(confirmation);
+      navigation.navigate('VerifyOtp', registerData);
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoader(false);
+    }
   };
-
-  // const renderTopSection = () => {
-  //   return (
-  //     <SafeAreaView>
-  //       <View style={styles.topHeader}>
-  //         <TouchableOpacity
-  //         // onPress={() => navigation.navigate('Login')}
-  //         >
-  //           <AntDesignIcons
-  //             name="arrowleft"
-  //             style={{
-  //               fontSize: 25,
-  //               color: '#000',
-  //             }}
-  //           />
-  //         </TouchableOpacity>
-  //       </View>
-  //     </SafeAreaView>
-  //   );
-  // };
 
   const onItemPress = (item: any) => {
     setPhoneCode(`+${item?.phone}`);

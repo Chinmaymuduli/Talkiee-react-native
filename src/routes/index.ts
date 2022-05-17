@@ -1,2 +1,5 @@
 export type { PublicRoutesType } from './PublicRoutes'
 // export type { PrivateRoutesType } from './PrivateRoutes'
+export { default as PublicRoutes } from './PublicRoutes'
+export { default as PrivateRoutes } from './PrivateRouts'
+// export { default as BottomTab } from './BottomTab'
