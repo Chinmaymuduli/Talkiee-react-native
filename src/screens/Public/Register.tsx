@@ -69,7 +69,7 @@ const Register = ({navigation}: Props) => {
     const registerData = {
       name: data?.Name,
       email: data?.Email,
-      number: data?.Number,
+      phone: data?.Number,
       gender: gender,
       password: data?.Password,
       countryCode: phoneCode,
@@ -129,7 +129,9 @@ const Register = ({navigation}: Props) => {
   }, [search, totalCountry]);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="always">
         {/* {renderTopSection()} */}
         {/* <Center w={'full'} h={Dimensions.get('window').height * 0.4}>
           <LottieView source={registration} autoPlay loop={false} />

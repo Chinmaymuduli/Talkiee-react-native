@@ -11,10 +11,7 @@ const COLORS = {
   lightGrey: '#E0E0E0',
   overlay: 'rgba(0, 0, 0, 0.3)',
   bgPrimary: '#EAF1F5',
-  colDanger: '#F44336',
-  brightBlue: '#0096FF',
-  colDangerLight: 'rgba(244, 67, 54, 0.15)',
-  primaryLight: 'rgba(0, 71, 171, 0.15)',
+  cyan: "#06b6d4"
 };
 
 export default COLORS;

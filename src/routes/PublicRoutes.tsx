@@ -10,12 +10,14 @@ export type PublicRoutesType = {
   SplashScreen: undefined;
   VerifyOtp: {
     name?: string;
-    number?: string | any;
+    phone?: any;
     email?: string;
     password?: string;
     gender?: string;
     countryCode?: string;
     confirm?: any;
+    // loginData?: any;
+    isRegister?: boolean;
   };
 };
 

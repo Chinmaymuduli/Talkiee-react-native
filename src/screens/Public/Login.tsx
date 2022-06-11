@@ -37,6 +37,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {CountryCode} from '../../constants';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PublicRoutesType} from 'routes';
+import auth from '@react-native-firebase/auth';
+import {useAppContext} from 'context';
 
 type Props = NativeStackScreenProps<PublicRoutesType, 'Login'>;
 const Login = ({navigation}: Props) => {
@@ -53,8 +55,66 @@ const Login = ({navigation}: Props) => {
   const [search, setSearch] = useState('');
   const [countryData, setCountryData] = useState<any>([]);
 
+  const {setConfirm} = useAppContext();
+
   const onSubmit = async (data: any) => {
-    console.log('object', data);
+    // console.log('object', data);
+    try {
+      const phoneNumber = `${phoneCode}${data.Number}`;
+      const loginData = {
+        phone: data?.Number,
+      };
+      setLoader(true);
+      // fetch data
+      const response = await fetch(
+        'https://talkieeapp.herokuapp.com/checkUser',
+        {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(loginData),
+        },
+      );
+      const data1 = await response.json();
+      console.log('data1', data1);
+      if (response.status === 200) {
+        const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+        setConfirm(confirmation);
+      }
+      navigation.navigate('VerifyOtp', loginData as any);
+    } catch (error: any) {
+      console.log('error', error);
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoader(false);
+    }
+    // const phoneMatch = allData?.some((item: any) => {
+    //   return data?.Number.trim().includes(item.phoneNumber);
+    // });
+    // if (phoneMatch) {
+    //   try {
+    //     setLoader(true);
+    //     const phoneNumber = `${phoneCode}${data.Number}`;
+    //     const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+    //     setConfirm(confirmation);
+    //     navigation.navigate('VerifyOtp', {
+    //       number: data.Number,
+    //       countryCode: phoneCode,
+    //       login: true,
+    //     });
+    //   } catch (error) {
+    //     Alert.alert('Error', 'Too many attempts, try again later');
+    //   } finally {
+    //     setLoader(false);
+    //   }
+    // } else {
+    //   Alert.alert(
+    //     'Phone Number Invalid',
+    //     'Please go to Register Page and Register your Phone Number',
+    //   );
+    // }
   };
 
   const onItemPress = (item: any) => {

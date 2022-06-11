@@ -54,7 +54,7 @@ const VerifyOtp = ({navigation, route}: Props) => {
     };
   });
 
-  const ConfirmOtp = async () => {
+  const registerConfirmOtp = async () => {
     try {
       setLoader(true);
       await confirm?.confirm(code);
@@ -65,25 +65,25 @@ const VerifyOtp = ({navigation, route}: Props) => {
       const userData = {
         name: route.params?.name,
         email: route.params?.email,
-        phone: route.params?.number.trim(),
+        phone: route.params?.phone.trim(),
         gender: route.params?.gender,
         password: route.params?.password,
         countryCode: route.params?.countryCode,
         idToken: token,
       };
       //fetch request
-      const response = await fetch('https://talkieeapp.herokuapp.com/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        'https://talkieeapp.herokuapp.com/register',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
         },
-        body: JSON.stringify(userData),
-      });
+      );
       const data = await response.json();
       console.log('data', data);
-      // !route.params?.login &&
-      //   (await database().ref(`Users/${res?.user.uid}`).set(userData));
-
       // navigation.navigate('Home')
     } catch (error) {
       console.log(error);
@@ -91,11 +91,35 @@ const VerifyOtp = ({navigation, route}: Props) => {
       setLoader(false);
     }
   };
-
+  const loginConfirmOtp = async () => {
+    try {
+      setLoader(true);
+      await confirm?.confirm(code);
+      const token = await auth().currentUser?.getIdToken(true);
+      const LoginResponse = {
+        phone: route.params?.phone.trim(),
+        idToken: token,
+      };
+      const response = await fetch('https://talkieeapp.herokuapp.com/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(LoginResponse),
+      });
+      const data = await response.json();
+      console.log('data', data);
+    } catch (error: any) {
+      console.log('object', error);
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoader(false);
+    }
+  };
   // Resend Otp
   const ResendOTP = async () => {
     try {
-      const phoneNumber = `${route.params?.countryCode}${route.params?.number}`;
+      const phoneNumber = `${route.params?.countryCode}${route.params?.phone}`;
       const conformation = await auth().signInWithPhoneNumber(phoneNumber);
       setConfirm(conformation);
     } catch (error) {
@@ -160,7 +184,11 @@ const VerifyOtp = ({navigation, route}: Props) => {
           </HStack>
         ) : (
           <Button
-            onPress={() => ConfirmOtp()}
+            onPress={() =>
+              route.params?.isRegister
+                ? registerConfirmOtp()
+                : loginConfirmOtp()
+            }
             style={LoginStyles.sendOtpButton}
             fontSize={18}
             color={COLORS.textWhite}

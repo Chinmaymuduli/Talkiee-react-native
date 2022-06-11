@@ -6,8 +6,8 @@ import PrivateRoutes from './routes/PrivateRouts';
 const Router = () => {
   return (
     <>
-      <PublicRoutes />
-      {/* <PrivateRoutes /> */}
+      {/* <PublicRoutes /> */}
+      <PrivateRoutes />
     </>
   );
 };
