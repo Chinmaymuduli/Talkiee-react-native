@@ -1,47 +1,115 @@
-import {SafeAreaView, StyleSheet, View} from 'react-native';
+import {
+  Dimensions,
+  ImageBackground,
+  SafeAreaView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
-import {Avatar, Box, HStack, Text, VStack} from 'native-base';
+import {Avatar, Box, HStack, Icon, Text, VStack} from 'native-base';
 import {COLORS} from 'configs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {GiftedChat, Bubble, Send} from 'react-native-gifted-chat';
+import Fontisto from 'react-native-vector-icons/Fontisto';
+import {
+  GiftedChat,
+  Bubble,
+  Send,
+  InputToolbar,
+  Actions,
+  Composer,
+} from 'react-native-gifted-chat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Feather from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAppContext} from 'context';
+import {CHATBG} from 'assets';
 
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ChatDetails'>;
 const ChatDetails = ({navigation, route}: Props) => {
   const chatData = route.params?.item;
-  // console.log('object', chatData);
   const [messages, setMessages] = useState([]);
+  const {user} = useAppContext();
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
+    //fetch chat data
+    const CHATDATA = async () => {
+      const token = await AsyncStorage.getItem('tokenId');
+      const CHATDATA = await fetch(
+        `https://talkieeapp.herokuapp.com/message/private/${chatData._id}`,
+        {
+          method: 'Get',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
         },
-      },
-      {
-        _id: 2,
-        text: 'hiiifddd',
-        createdAt: new Date(),
-        user: {
-          _id: 1,
-          name: 'React Native',
-          avatar: 'https://placeimg.com/140/140/any',
-        },
-      },
-    ]);
+      );
+      const data = await CHATDATA.json();
+      // console.log('object69', data);
+
+      if (CHATDATA.status !== 200) {
+        setMessages([]);
+        return;
+      }
+
+      let messageData = data?.data?.messages?.map((item: any) => {
+        return {
+          _id: item?._id,
+          text: item.message,
+          createdAt: item.createdAt,
+          user: {
+            _id: item.sender === chatData?._id ? chatData._id : user._id,
+            name: user?._id === item.receiver ? chatData.name : '',
+            avatar: user?._id === item.receiver && chatData.avatar,
+          },
+        };
+      });
+
+      setMessages(messageData);
+
+      // console.log('object', data);
+    };
+    CHATDATA();
   }, []);
+
+  // console.log(messages);
+
   const onSend = useCallback((messages = []) => {
     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, messages),
     );
+
+    const sendToDb = async () => {
+      try {
+        const token = await AsyncStorage.getItem('tokenId');
+
+        const sendData = {
+          message: messages[0].text,
+          to: chatData._id,
+        };
+
+        const response = await fetch(
+          'https://talkieeapp.herokuapp.com/message/private',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(sendData),
+          },
+        );
+
+        const data = await response.json();
+
+        // console.log('object', data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    sendToDb();
   }, []);
   const renderBubble = (props: any) => {
     return (
@@ -57,22 +125,71 @@ const ChatDetails = ({navigation, route}: Props) => {
   };
 
   const renderSend = (props: any) => {
+    if (!props.text.trim()) {
+      return (
+        <Box
+          bg={COLORS.cyan}
+          borderRadius={30}
+          alignItems={'center'}
+          mb={1}
+          ml={1}>
+          <Ionicons
+            name="mic"
+            size={27}
+            color={COLORS.textWhite}
+            // style={{marginBottom: 6, marginRight: 6}}
+            style={{padding: 6}}
+          />
+        </Box>
+      );
+    }
     return (
       <Send {...props}>
-        <Box>
-          <Ionicons
+        <Box
+          bg={COLORS.cyan}
+          borderRadius={40}
+          alignItems={'center'}
+          mt={1}
+          ml={1}>
+          <Feather
             name="send"
             size={24}
-            color={COLORS.cyan}
-            style={{marginBottom: 6}}
+            color={COLORS.textWhite}
+            style={{padding: 8}}
           />
         </Box>
       </Send>
     );
   };
-  // const scrollToBottomComponent = () => {
-  //   return <FontAwesome name="angle-double-down" size={22} color={'#333'} />;
-  // };
+
+  const renderInputToolbar = (props: any) => {
+    return <InputToolbar {...props} containerStyle={styles.input} />;
+  };
+
+  const renderComposer = (props: any) => {
+    return (
+      <Box
+        flexDirection={'row'}
+        // marginRight={1}
+        bg={'#ecfeff'}
+        paddingRight={2}
+        alignItems={'center'}
+        borderRadius={50}>
+        <Composer {...props} />
+
+        <Fontisto
+          name="smiley"
+          size={22}
+          color={COLORS.cyan}
+          style={{
+            marginRight: 10,
+          }}
+        />
+        <Ionicons name="attach" size={27} color={COLORS.cyan} />
+      </Box>
+    );
+  };
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <Box bg={COLORS.cyan} h={120} px={4} py={4}>
@@ -112,24 +229,72 @@ const ChatDetails = ({navigation, route}: Props) => {
           </HStack>
         </HStack>
       </Box>
-      <Box bg={COLORS.textWhite} mt={-10} borderTopRadius={30} flex={1} px={4}>
+      <ImageBackground
+        source={CHATBG}
+        // height={'100%'}
+        // width={100}
+        borderTopLeftRadius={30}
+        borderTopRightRadius={30}
+        resizeMode={'cover'}
+        style={{
+          flex: 1,
+          marginTop: -30,
+        }}>
+        {/* <Box
+          bg={COLORS.fadeBlack}
+          mt={-10}
+          borderTopRadius={30}
+          flex={1}
+          pl={2}> */}
         <GiftedChat
-          messages={messages}
+          messages={messages?.sort((a: any, b: any) => {
+            return b.createdAt - a.createdAt;
+          })}
           onSend={messages => onSend(messages)}
           user={{
-            _id: 1,
+            _id: user?._id,
           }}
           renderBubble={renderBubble}
           alwaysShowSend
           renderSend={renderSend}
           scrollToBottom
-          // scrollToBottomComponent={scrollToBottomComponent}
+          renderInputToolbar={props => renderInputToolbar(props)}
+          renderComposer={props => renderComposer(props)}
+          listViewProps={{
+            styles: {
+              backgroundColor: 'red',
+            },
+          }}
+          // renderActions={() => (
+          //   <Actions
+          //     icon={() => (
+          //       <Fontisto
+          //         name="smiley"
+          //         size={20}
+          //         color={COLORS.fadeBlack}
+          //         // style={{marginRight: -10}}
+          //       />
+          //     )}
+          //   />
+          // )}
         />
-      </Box>
+        {/* </Box> */}
+      </ImageBackground>
     </SafeAreaView>
   );
 };
 
 export default ChatDetails;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  input: {
+    borderRadius: 30,
+    // backgroundColor: '#ecfeff',
+    // marginLeft: 10,
+    marginRight: 50,
+    borderTopWidth: 0,
+    // backgroundColor: '#000',
+    marginBottom: 2,
+    // alignItems: 'center',
+  },
+});

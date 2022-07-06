@@ -1,5 +1,5 @@
 import {Dimensions, SafeAreaView, StyleSheet, FlatList} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Avatar,
   Box,
@@ -19,6 +19,8 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
 import {useNavigation} from '@react-navigation/native';
 import {NavigationProps} from 'routes';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const chatArr = [
   {
     id: 1,
@@ -46,7 +48,7 @@ const chatArr = [
   {
     id: 4,
     name: 'Vikram Doe',
-    avatar: 'https://source.unsplash.com/random/300x200?sig=${Math.random()}',
+    avatar: '',
     Message: 'Hello user message',
     time: '12:00 am',
   },
@@ -56,6 +58,26 @@ const Home = () => {
   const navigation = useNavigation<NavigationProps>();
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState<any[]>();
+  const [allUser, setAllUser] = useState<any[]>();
+  // console.log('object255', allUser);
+  // fetch data from api
+
+  // useEffect(() => {
+  //   const RESPONSDATA = async () => {
+  //     const token = await AsyncStorage.getItem('tokenId');
+  //     const Response = await fetch('https://talkieeapp.herokuapp.com/friends', {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     const data = await Response.json();
+  //     // console.log(data?.data);
+  //     setAllUser(data?.data);
+  //   };
+  //   RESPONSDATA();
+  // }, []);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
@@ -83,7 +105,7 @@ const Home = () => {
         borderTopRadius={30}
         showsVerticalScrollIndicator={false}>
         <Box mt={3}>
-          {chatArr.map((item: any) => (
+          {chatArr?.map((item: any) => (
             <Pressable
               px={4}
               py={2}
@@ -94,8 +116,8 @@ const Home = () => {
                   onPress={() => {
                     setShowModal(true), setItem(item);
                   }}>
-                  <Image
-                    alt="image"
+                  <Avatar
+                    // alt="image"
                     source={{
                       uri: item?.avatar,
                     }}
@@ -103,7 +125,9 @@ const Home = () => {
                     w={12}
                     borderRadius={30}
                     // resizeMode={'contain'}
-                  />
+                  >
+                    {item?.name?.charAt(0)}
+                  </Avatar>
                 </Pressable>
                 <VStack flex={1}>
                   <Text fontFamily={'Nunito-Bold'} fontSize={16}>
@@ -111,7 +135,7 @@ const Home = () => {
                   </Text>
                   <Text fontFamily={'Nunito-Regular'}>this is message</Text>
                 </VStack>
-                <Text>{item?.time}</Text>
+                <Text>12:15AM</Text>
               </Row>
             </Pressable>
           ))}

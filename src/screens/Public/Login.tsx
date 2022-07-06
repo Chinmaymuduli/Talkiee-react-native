@@ -39,6 +39,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PublicRoutesType} from 'routes';
 import auth from '@react-native-firebase/auth';
 import {useAppContext} from 'context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = NativeStackScreenProps<PublicRoutesType, 'Login'>;
 const Login = ({navigation}: Props) => {
@@ -54,67 +55,46 @@ const Login = ({navigation}: Props) => {
   const totalCountry = CountryCode;
   const [search, setSearch] = useState('');
   const [countryData, setCountryData] = useState<any>([]);
+  const [eyeVisible, setEyeVisible] = useState(false);
 
-  const {setConfirm} = useAppContext();
+  const {setConfirm, setUser} = useAppContext();
 
   const onSubmit = async (data: any) => {
     // console.log('object', data);
+
+    const phoneNumber = `${phoneCode}${data.Number}`;
+
+    const loginData = {
+      phone: phoneNumber,
+      password: data?.Password,
+    };
+    //fetching data to server
     try {
-      const phoneNumber = `${phoneCode}${data.Number}`;
-      const loginData = {
-        phone: data?.Number,
-      };
       setLoader(true);
-      // fetch data
-      const response = await fetch(
-        'https://talkieeapp.herokuapp.com/checkUser',
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(loginData),
+      const respose = await fetch('https://talkieeapp.herokuapp.com/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-      );
-      const data1 = await response.json();
-      console.log('data1', data1);
-      if (response.status === 200) {
-        const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-        setConfirm(confirmation);
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await respose.json();
+      // console.log('object', data);
+
+      if (respose.status !== 200) {
+        // navigation.navigate('Confirm');
+        Alert.alert('Error', data.message);
+        return;
       }
-      navigation.navigate('VerifyOtp', loginData as any);
-    } catch (error: any) {
-      console.log('error', error);
-      Alert.alert('Error', error.message);
+      await AsyncStorage.setItem('tokenId', data.data.token);
+      setUser(data?.data.data);
+      navigation.navigate('Home');
+    } catch (error) {
+      console.log(error);
     } finally {
       setLoader(false);
     }
-    // const phoneMatch = allData?.some((item: any) => {
-    //   return data?.Number.trim().includes(item.phoneNumber);
-    // });
-    // if (phoneMatch) {
-    //   try {
-    //     setLoader(true);
-    //     const phoneNumber = `${phoneCode}${data.Number}`;
-    //     const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-    //     setConfirm(confirmation);
-    //     navigation.navigate('VerifyOtp', {
-    //       number: data.Number,
-    //       countryCode: phoneCode,
-    //       login: true,
-    //     });
-    //   } catch (error) {
-    //     Alert.alert('Error', 'Too many attempts, try again later');
-    //   } finally {
-    //     setLoader(false);
-    //   }
-    // } else {
-    //   Alert.alert(
-    //     'Phone Number Invalid',
-    //     'Please go to Register Page and Register your Phone Number',
-    //   );
-    // }
   };
 
   const onItemPress = (item: any) => {
@@ -160,7 +140,7 @@ const Login = ({navigation}: Props) => {
   return (
     <>
       <StatusBar
-        backgroundColor={COLORS.primary}
+        backgroundColor={COLORS.cyan}
         // translucent={true}
         barStyle={'light-content'}
       />
@@ -175,7 +155,7 @@ const Login = ({navigation}: Props) => {
           <Box
             // alignItems={'center'}
             justifyContent={'center'}
-            bg={COLORS.primary}
+            bg={COLORS.cyan}
             w={'100%'}
             h={Dimensions.get('window').height / 3}
             borderBottomRightRadius={220}>
@@ -203,7 +183,7 @@ const Login = ({navigation}: Props) => {
           <Box alignItems={'center'} mt={12} mb={2}>
             <VStack>
               <Heading
-                color={COLORS.primary}
+                color={COLORS.cyan}
                 fontSize={38}
                 fontFamily="Nunito-Bold"
                 fontWeight={200}>
@@ -270,6 +250,70 @@ const Login = ({navigation}: Props) => {
                   </FormControl.ErrorMessage>
                 </FormControl>
 
+                <FormControl isRequired isInvalid={'Password' in errors}>
+                  <Controller
+                    control={control}
+                    render={({field: {onChange, onBlur, value}}) => (
+                      <Input
+                        placeholder="Enter Password"
+                        size="xl"
+                        backgroundColor={COLORS.textWhite}
+                        borderColor={COLORS.whiteSmoke}
+                        fontSize={20}
+                        secureTextEntry={eyeVisible ? false : true}
+                        type="password"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        InputLeftElement={
+                          <Box
+                            alignItems={'center'}
+                            justifyContent={'center'}
+                            h={'100%'}
+                            borderRightWidth={1}
+                            // onPress={() => setModalVisible(true)}
+                            borderRightColor={COLORS.fadeBlack}>
+                            <Ionicons
+                              name="key-outline"
+                              size={25}
+                              color={COLORS.fadeBlack}
+                              style={{
+                                marginLeft: 15,
+                                marginRight: 10,
+                              }}
+                            />
+                          </Box>
+                        }
+                        InputRightElement={
+                          <Ionicons
+                            name={eyeVisible ? 'eye-off' : 'eye'}
+                            size={25}
+                            color={COLORS.cyan}
+                            onPress={() => setEyeVisible(!eyeVisible)}
+                            style={{
+                              marginRight: 15,
+                            }}
+                          />
+                        }
+                        borderRadius={30}
+                        padding={3}
+                        bg={COLORS.transparent}
+                        shadow={3}
+                        height={60}
+                      />
+                    )}
+                    name="Password"
+                    rules={{
+                      required: 'Password  is required',
+                    }}
+                    defaultValue=""
+                  />
+
+                  <FormControl.ErrorMessage>
+                    {errors.Password?.message}
+                  </FormControl.ErrorMessage>
+                </FormControl>
+
                 {loader ? (
                   <HStack
                     space={2}
@@ -280,7 +324,7 @@ const Login = ({navigation}: Props) => {
                       color={'white'}
                     />
                     <Heading color="white" fontSize="md" mt={1}>
-                      Sending OTP
+                      Please Wait
                     </Heading>
                   </HStack>
                 ) : (
@@ -291,9 +335,9 @@ const Login = ({navigation}: Props) => {
                     }
                     style={LoginStyles.sendOtpButton}
                     onPress={handleSubmit(onSubmit)}
-                    fontSize="18"
+                    fontSize={20}
                     color={COLORS.textWhite}>
-                    Send OTP
+                    Login
                   </Button>
                 )}
               </Stack>
@@ -305,7 +349,7 @@ const Login = ({navigation}: Props) => {
                   mt={1}
                   textAlign={'center'}
                   size={'sm'}
-                  color={'#133373'}
+                  color={COLORS.cyan}
                   fontFamily="Nunito-Bold"
                   fontWeight={200}>
                   Don't have an account? Sign Up

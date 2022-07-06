@@ -65,10 +65,10 @@ const VerifyOtp = ({navigation, route}: Props) => {
       const userData = {
         name: route.params?.name,
         email: route.params?.email,
-        phone: route.params?.phone.trim(),
+        phone: route.params?.countryCode + route.params?.phone,
         gender: route.params?.gender,
         password: route.params?.password,
-        countryCode: route.params?.countryCode,
+
         idToken: token,
       };
       //fetch request

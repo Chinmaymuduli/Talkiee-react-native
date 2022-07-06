@@ -17,7 +17,7 @@ const LoginStyles = StyleSheet.create({
     shadowRadius: 5, //IOS
     elevation: 5, // Android
     height: 55,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.cyan,
     shadowColor: COLORS.fadeBlack,
   },
   skipNowAction: {
