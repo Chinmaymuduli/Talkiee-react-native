@@ -3,7 +3,11 @@ import React, {useEffect, useState} from 'react';
 import {
   Avatar,
   Box,
+  Fab,
   Heading,
+  HStack,
+  Icon,
+  Image,
   Pressable,
   Row,
   ScrollView,
@@ -18,6 +22,8 @@ import {NavigationProps} from 'routes';
 import {useDbFetch} from 'hooks';
 import {BASE_URL, GET_FRIENDS} from '../../configs/pathConfig';
 import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 type Message_Type = {
   _id: string;
@@ -78,7 +84,7 @@ const Home = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <Box bg={COLORS.cyan} h={120}>
+      <Box bg={COLORS.cyan} h={110}>
         <Row
           alignItems={'center'}
           justifyContent={'space-between'}
@@ -93,7 +99,16 @@ const Home = () => {
               Chats
             </Heading>
           </Box>
-          <Ionicons name="search-outline" size={25} color={COLORS.textWhite} />
+          <HStack space={6} alignItems={'center'}>
+            <Ionicons
+              name="search-outline"
+              size={25}
+              color={COLORS.textWhite}
+            />
+            <Pressable justifyContent={'center'} borderRadius={6}>
+              <AntDesign name="plus" color={'white'} size={28} />
+            </Pressable>
+          </HStack>
         </Row>
       </Box>
       <ScrollView
@@ -123,7 +138,6 @@ const Home = () => {
                     setShowModal(true), setModalData(item);
                   }}>
                   <Avatar
-                    // alt="image"
                     source={{
                       uri: item?.user?.profileImage,
                     }}
@@ -150,6 +164,7 @@ const Home = () => {
             </Pressable>
           ))}
         </Box>
+        {/* fab */}
       </ScrollView>
 
       {/* Modal Component */}

@@ -2,7 +2,16 @@ import {ImageBackground, SafeAreaView, StyleSheet, Alert} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
-import {Avatar, Box, HStack, Text, VStack} from 'native-base';
+import {
+  Avatar,
+  Box,
+  HStack,
+  Icon,
+  Modal,
+  Pressable,
+  Text,
+  VStack,
+} from 'native-base';
 import {COLORS} from 'configs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Fontisto from 'react-native-vector-icons/Fontisto';
@@ -31,6 +40,7 @@ type CHATDATA_TYPE = {
 const ChatDetails = ({navigation, route}: Props) => {
   const chatData: CHATDATA_TYPE = route.params?.item;
   const [messages, setMessages] = useState<any>([]);
+  const [open, setOpen] = useState<boolean>(false);
 
   const {fetchData, loading} = useDbFetch();
 
@@ -154,7 +164,6 @@ const ChatDetails = ({navigation, route}: Props) => {
             name="mic"
             size={27}
             color={COLORS.textWhite}
-            // style={{marginBottom: 6, marginRight: 6}}
             style={{padding: 6}}
           />
         </Box>
@@ -236,20 +245,44 @@ const ChatDetails = ({navigation, route}: Props) => {
             <Box>
               <Ionicons name="call" color={COLORS.textWhite} size={22} />
             </Box>
-            <Box>
+            <Pressable onPress={() => setOpen(!open)}>
               <Ionicons
                 name="ellipsis-vertical"
                 size={22}
                 color={COLORS.textWhite}
               />
-            </Box>
+            </Pressable>
           </HStack>
         </HStack>
+        <Modal isOpen={open} onClose={() => setOpen(false)} safeAreaTop={true}>
+          <Modal.Content w={180} style={styles.top}>
+            <Modal.Body>
+              <Pressable mb={2}>
+                <Text py={2} bold>
+                  Clear Chat
+                </Text>
+              </Pressable>
+              <Pressable mb={2}>
+                <Text py={2} bold>
+                  Block
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate('ProfileDetails', {
+                    item: chatData,
+                  })
+                }>
+                <Text py={2} bold>
+                  View Profile
+                </Text>
+              </Pressable>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
       </Box>
       <ImageBackground
         source={CHATBG}
-        // height={'100%'}
-        // width={100}
         borderTopLeftRadius={30}
         borderTopRightRadius={30}
         resizeMode={'cover'}
@@ -313,5 +346,11 @@ const styles = StyleSheet.create({
     // backgroundColor: '#000',
     marginBottom: 2,
     // alignItems: 'center',
+  },
+  top: {
+    marginLeft: 'auto',
+    marginBottom: 'auto',
+    marginTop: 1,
+    marginRight: 0,
   },
 });
