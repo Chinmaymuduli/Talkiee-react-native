@@ -6920,6 +6920,11 @@ react-native-communications@2.2.1:
   resolved "https://registry.yarnpkg.com/react-native-communications/-/react-native-communications-2.2.1.tgz#7883b56b20a002eeb790c113f8616ea8692ca795"
   integrity sha512-5+C0X9mopI0+qxyQHzOPEi5v5rxNBQjxydPPiKMQSlX1RBIcJ8uTcqUPssQ9Mo8p6c1IKIWJUSqCj4jAmD0qVQ==
 
+react-native-contacts@^7.0.4:
+  version "7.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-contacts/-/react-native-contacts-7.0.4.tgz#6f084f651bb5dde433acc22553c6d1ca909e46b7"
+  integrity sha512-x6K9TMC0XBH/yyfqYh5BGS9JI1PpA2Ac/XHVVFVP8F8lPLNexQ0qPsNBo1cy9l2pPqlijpC33+FU0ty/N5iOWA==
+
 react-native-gifted-chat@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/react-native-gifted-chat/-/react-native-gifted-chat-1.0.0.tgz#53c60145463ae0bb4f50b9ce7896a6a3107d00b4"

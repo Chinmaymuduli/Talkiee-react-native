@@ -3,8 +3,10 @@ import React, {useEffect, useState} from 'react';
 import {
   Avatar,
   Box,
+  Fab,
   Heading,
   HStack,
+  Icon,
   Image,
   Pressable,
   Row,
@@ -20,6 +22,7 @@ import {PrivateRoutesType} from 'routes';
 import {useNavigation} from '@react-navigation/native';
 import {NavigationProps} from 'routes';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const chatArr = [
   {
@@ -59,6 +62,7 @@ const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState<any[]>();
   const [allUser, setAllUser] = useState<any[]>();
+  const [showSearch, setShowSearch] = useState(false);
   // console.log('object255', allUser);
   // fetch data from api
 
@@ -81,7 +85,7 @@ const Home = () => {
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <Box bg={COLORS.cyan} h={120}>
+      <Box bg={COLORS.cyan} h={110}>
         <Row
           alignItems={'center'}
           justifyContent={'space-between'}
@@ -96,7 +100,16 @@ const Home = () => {
               Chats
             </Heading>
           </Box>
-          <Ionicons name="search-outline" size={25} color={COLORS.textWhite} />
+          <HStack space={6} alignItems={'center'}>
+            <Ionicons
+              name="search-outline"
+              size={25}
+              color={COLORS.textWhite}
+            />
+            <Pressable justifyContent={'center'} borderRadius={6}>
+              <AntDesign name="plus" color={'white'} size={28} />
+            </Pressable>
+          </HStack>
         </Row>
       </Box>
       <ScrollView
@@ -117,15 +130,12 @@ const Home = () => {
                     setShowModal(true), setItem(item);
                   }}>
                   <Avatar
-                    // alt="image"
                     source={{
                       uri: item?.avatar,
                     }}
                     h={12}
                     w={12}
-                    borderRadius={30}
-                    // resizeMode={'contain'}
-                  >
+                    borderRadius={30}>
                     {item?.name?.charAt(0)}
                   </Avatar>
                 </Pressable>
@@ -140,6 +150,7 @@ const Home = () => {
             </Pressable>
           ))}
         </Box>
+        {/* fab */}
       </ScrollView>
 
       {/* Modal Component */}

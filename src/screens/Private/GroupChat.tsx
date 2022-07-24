@@ -1,11 +1,20 @@
-import {Dimensions, SafeAreaView, StyleSheet, FlatList} from 'react-native';
+import {
+  Dimensions,
+  SafeAreaView,
+  StyleSheet,
+  FlatList,
+  PermissionsAndroid,
+} from 'react-native';
 import React, {useState} from 'react';
 import {
   Avatar,
   Box,
+  Center,
   Heading,
   HStack,
   Image,
+  Modal,
+  PresenceTransition,
   Pressable,
   Row,
   ScrollView,
@@ -19,6 +28,9 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
 import {useNavigation} from '@react-navigation/native';
 import {NavigationProps} from 'routes';
+
+// import {PermissionsAndroid} from 'react-native';
+import Contacts from 'react-native-contacts';
 const chatArr = [
   {
     id: 1,
@@ -41,10 +53,10 @@ const GroupChat = () => {
   const navigation = useNavigation<NavigationProps>();
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState<any[]>();
-
+  const [open, setOpen] = useState(false);
   return (
-    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
-      <Box bg={COLORS.cyan} h={120}>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#06b6d4'}}>
+      <Box bg={COLORS.cyan} position={'relative'} zIndex={9999}>
         <Row
           alignItems={'center'}
           justifyContent={'space-between'}
@@ -59,11 +71,34 @@ const GroupChat = () => {
               Groups
             </Heading>
           </Box>
-          <Ionicons name="search-outline" size={25} color={COLORS.textWhite} />
+          <HStack alignItems={'center'} space={5}>
+            <Ionicons
+              name="search-outline"
+              size={25}
+              color={COLORS.textWhite}
+            />
+            <Pressable onPress={() => setOpen(!open)}>
+              <Ionicons
+                name="ellipsis-vertical"
+                size={24}
+                color={COLORS.textWhite}
+              />
+            </Pressable>
+          </HStack>
         </Row>
+        <Modal isOpen={open} onClose={() => setOpen(false)} safeAreaTop={true}>
+          <Modal.Content w={180} style={styles.top}>
+            <Modal.Body>
+              <Box>
+                <Text>Create Group</Text>
+              </Box>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal>
       </Box>
+
+      {/* <Box> */}
       <ScrollView
-        mt={-10}
         bg={COLORS.textWhite}
         borderTopRadius={30}
         showsVerticalScrollIndicator={false}>
@@ -87,7 +122,6 @@ const GroupChat = () => {
                     h={12}
                     w={12}
                     borderRadius={30}
-                    // resizeMode={'contain'}
                   />
                 </Pressable>
                 <VStack flex={1}>
@@ -102,6 +136,7 @@ const GroupChat = () => {
           ))}
         </Box>
       </ScrollView>
+      {/* </Box> */}
 
       {/* Modal Component */}
       <ProfileModal
@@ -109,10 +144,18 @@ const GroupChat = () => {
         setShowModal={setShowModal}
         item={item}
       />
+      {/* animation */}
     </SafeAreaView>
   );
 };
 
 export default GroupChat;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  top: {
+    marginLeft: 'auto',
+    marginBottom: 'auto',
+    marginTop: 1,
+    marginRight: 0,
+  },
+});
