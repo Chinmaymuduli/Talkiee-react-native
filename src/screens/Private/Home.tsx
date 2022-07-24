@@ -1,11 +1,9 @@
-import {Dimensions, SafeAreaView, StyleSheet, FlatList} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {
   Avatar,
   Box,
   Heading,
-  HStack,
-  Image,
   Pressable,
   Row,
   ScrollView,
@@ -15,69 +13,68 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {COLORS} from 'configs';
 import {ProfileModal} from 'components/core';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {PrivateRoutesType} from 'routes';
 import {useNavigation} from '@react-navigation/native';
 import {NavigationProps} from 'routes';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useDbFetch} from 'hooks';
+import {BASE_URL, GET_FRIENDS} from '../../configs/pathConfig';
+import moment from 'moment';
 
-const chatArr = [
-  {
-    id: 1,
-    name: 'John Doe',
-    avatar: 'https://source.unsplash.com/user/c_v_r',
-    Message: 'Hello user message',
-    time: '12:00 am',
-  },
-  {
-    id: 2,
-    name: 'Sara Doe',
-    avatar:
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cGVyc29ufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500',
-    Message: 'Hello user message',
-    time: '12:00 am',
-  },
-  {
-    id: 3,
-    name: 'willey John',
-    avatar:
-      'https://images.unsplash.com/photo-1491349174775-aaafddd81942?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHBlcnNvbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500',
-    Message: 'Hello user message',
-    time: '12:00 am',
-  },
-  {
-    id: 4,
-    name: 'Vikram Doe',
-    avatar: '',
-    Message: 'Hello user message',
-    time: '12:00 am',
-  },
-];
+type Message_Type = {
+  _id: string;
+  conversationId: string;
+  createdAt: string;
+  delivered?: boolean;
+  message?: string;
+  receiver?: string;
+  sender?: string;
+};
+
+type MESSAGE_USER = {
+  _id?: string;
+  gender?: string;
+  name?: string;
+  profileImage?: string;
+};
+
+type FRIENDS_TYPE = {
+  _id: string;
+  message: Message_Type;
+  unseenMessages: number;
+  user: MESSAGE_USER;
+};
 
 const Home = () => {
   const navigation = useNavigation<NavigationProps>();
   const [showModal, setShowModal] = useState(false);
-  const [item, setItem] = useState<any[]>();
-  const [allUser, setAllUser] = useState<any[]>();
-  // console.log('object255', allUser);
-  // fetch data from api
+  const [modalData, setModalData] = useState<any>();
+  const [friendsArray, setFriendsArray] = useState<FRIENDS_TYPE[]>([]);
 
-  // useEffect(() => {
-  //   const RESPONSDATA = async () => {
-  //     const token = await AsyncStorage.getItem('tokenId');
-  //     const Response = await fetch('https://talkieeapp.herokuapp.com/friends', {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     const data = await Response.json();
-  //     // console.log(data?.data);
-  //     setAllUser(data?.data);
-  //   };
-  //   RESPONSDATA();
-  // }, []);
+  const {fetchData, loading} = useDbFetch();
+
+  useEffect(() => {
+    let mounted = true;
+    if (mounted) {
+      fetchData(
+        {
+          method: 'GET',
+          headers: {
+            'Content-type': 'application/json',
+          },
+          path: BASE_URL + GET_FRIENDS,
+        },
+        (result, response) => {
+          if (response?.status === 200) {
+            setFriendsArray(result?.data);
+          }
+        },
+      );
+    }
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // console.log(friendsArray);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
@@ -105,37 +102,50 @@ const Home = () => {
         borderTopRadius={30}
         showsVerticalScrollIndicator={false}>
         <Box mt={3}>
-          {chatArr?.map((item: any) => (
+          {friendsArray?.map((item: FRIENDS_TYPE) => (
             <Pressable
               px={4}
               py={2}
-              key={item?.id}
-              onPress={() => navigation.navigate('ChatDetails', {item})}>
+              key={item?._id}
+              onPress={() =>
+                navigation.navigate('ChatDetails', {
+                  item: {
+                    _id: item?._id,
+                    name: item?.user?.name,
+                    userId: item?.user?._id,
+                    profileImage: item?.user?.profileImage,
+                  },
+                })
+              }>
               <Row space={3} alignItems={'center'}>
                 <Pressable
                   onPress={() => {
-                    setShowModal(true), setItem(item);
+                    setShowModal(true), setModalData(item);
                   }}>
                   <Avatar
                     // alt="image"
                     source={{
-                      uri: item?.avatar,
+                      uri: item?.user?.profileImage,
                     }}
                     h={12}
                     w={12}
                     borderRadius={30}
                     // resizeMode={'contain'}
                   >
-                    {item?.name?.charAt(0)}
+                    {item?.user?.name?.charAt(0)}
                   </Avatar>
                 </Pressable>
                 <VStack flex={1}>
                   <Text fontFamily={'Nunito-Bold'} fontSize={16}>
-                    {item?.name}
+                    {item?.user?.name}
                   </Text>
-                  <Text fontFamily={'Nunito-Regular'}>this is message</Text>
+                  <Text fontFamily={'Nunito-Regular'}>
+                    {item?.message?.message}
+                  </Text>
                 </VStack>
-                <Text>12:15AM</Text>
+                <Text>
+                  {moment(item?.message?.createdAt).format('HH:mm A')}
+                </Text>
               </Row>
             </Pressable>
           ))}
@@ -146,7 +156,7 @@ const Home = () => {
       <ProfileModal
         showModal={showModal}
         setShowModal={setShowModal}
-        item={item}
+        item={modalData}
       />
     </SafeAreaView>
   );

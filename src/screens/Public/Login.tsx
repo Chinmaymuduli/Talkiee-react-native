@@ -40,6 +40,7 @@ import {PublicRoutesType} from 'routes';
 import auth from '@react-native-firebase/auth';
 import {useAppContext} from 'context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {BASE_URL, LOGIN} from '../../configs/pathConfig';
 
 type Props = NativeStackScreenProps<PublicRoutesType, 'Login'>;
 const Login = ({navigation}: Props) => {
@@ -71,7 +72,8 @@ const Login = ({navigation}: Props) => {
     //fetching data to server
     try {
       setLoader(true);
-      const respose = await fetch('https://talkieeapp.herokuapp.com/login', {
+
+      const respose = await fetch(BASE_URL + LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -80,7 +82,7 @@ const Login = ({navigation}: Props) => {
       });
 
       const data = await respose.json();
-      // console.log('object', data);
+      console.log('object', data);
 
       if (respose.status !== 200) {
         // navigation.navigate('Confirm');

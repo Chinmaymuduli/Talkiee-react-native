@@ -34,7 +34,7 @@ const ProfileModal = ({setShowModal, showModal, item}: ModalType) => {
           <ImageBackground
             height={300}
             width={300}
-            source={{uri: item?.avatar}}
+            source={{uri: item?.user?.profileImage}}
             resizeMode={'cover'}>
             <Box h={250}></Box>
           </ImageBackground>
@@ -42,7 +42,7 @@ const ProfileModal = ({setShowModal, showModal, item}: ModalType) => {
             <HStack justifyContent={'space-between'}>
               <Box>
                 <Heading color={'#000'} size={'md'}>
-                  {item?.name}
+                  {item?.user?.name}
                 </Heading>
               </Box>
               <Row space={5}>
