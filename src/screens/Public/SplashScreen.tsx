@@ -10,15 +10,21 @@ type Props = NativeStackScreenProps<PublicRoutesType, 'SplashScreen'>;
 const SplashScreen = ({navigation}: Props) => {
   const [count, setCount] = useState(0);
   useEffect(() => {
-    if (count < 100) {
-      setTimeout(() => {
-        setCount(count + 10);
-      }, 100);
-    } else {
-      navigation.navigate('Welcome');
+    let mounted = true;
+
+    if (mounted) {
+      if (count < 100) {
+        setTimeout(() => {
+          setCount(count + 10);
+        }, 100);
+      } else {
+        navigation.navigate('Welcome');
+      }
     }
 
-    return () => {};
+    return () => {
+      mounted = false;
+    };
   }, [count]);
   return (
     <ImageBackground

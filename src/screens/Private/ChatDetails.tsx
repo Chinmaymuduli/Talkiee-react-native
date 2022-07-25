@@ -1,10 +1,4 @@
-import {
-  Dimensions,
-  ImageBackground,
-  SafeAreaView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {ImageBackground, SafeAreaView, StyleSheet, Alert} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
@@ -26,99 +20,124 @@ import {
   Bubble,
   Send,
   InputToolbar,
-  Actions,
   Composer,
 } from 'react-native-gifted-chat';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useAppContext} from 'context';
 import {CHATBG} from 'assets';
+import {useDbFetch} from 'hooks';
+import {BASE_URL, PRIVATE_MESSAGE} from '../../configs/pathConfig';
 
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ChatDetails'>;
+
+type CHATDATA_TYPE = {
+  _id: string;
+  name?: string;
+  profileImage?: string;
+  userId?: string;
+};
+
 const ChatDetails = ({navigation, route}: Props) => {
-  const chatData = route.params?.item;
-  const [messages, setMessages] = useState([]);
-  const {user} = useAppContext();
-  const [open, setOpen] = useState(false);
+  const chatData: CHATDATA_TYPE = route.params?.item;
+  const [messages, setMessages] = useState<any>([]);
+  const [open, setOpen] = useState<boolean>(false);
+
+  const {fetchData, loading} = useDbFetch();
+
+  const {user, socketRef} = useAppContext();
+
+  // console.log('chatData', chatData);
 
   useEffect(() => {
     //fetch chat data
-    const CHATDATA = async () => {
-      const token = await AsyncStorage.getItem('tokenId');
-      const CHATDATA = await fetch(
-        `https://talkieeapp.herokuapp.com/message/private/${chatData._id}`,
+
+    let mounted = true;
+
+    if (mounted) {
+      fetchData(
         {
-          method: 'Get',
+          method: 'GET',
+          path: BASE_URL + PRIVATE_MESSAGE + `/${chatData?.userId}`,
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
           },
         },
+        (result, response) => {
+          // console.log('chat', result);
+          if (response.status === 200) {
+            let messageData = result?.data?.map((item: any) => {
+              return {
+                _id: item?._id,
+                text: item.message,
+                createdAt: item.createdAt,
+                user: {
+                  _id:
+                    item.sender === chatData?.userId
+                      ? chatData?.userId
+                      : user._id,
+                  name: user?._id === item.receiver ? chatData.name : '',
+                  avatar: user?._id === item.receiver && chatData.profileImage,
+                },
+              };
+            });
+
+            setMessages(messageData);
+          }
+        },
       );
-      const data = await CHATDATA.json();
-      // console.log('object69', data);
+    }
 
-      if (CHATDATA.status !== 200) {
-        setMessages([]);
-        return;
-      }
-
-      let messageData = data?.data?.messages?.map((item: any) => {
-        return {
-          _id: item?._id,
-          text: item.message,
-          createdAt: item.createdAt,
-          user: {
-            _id: item.sender === chatData?._id ? chatData._id : user._id,
-            name: user?._id === item.receiver ? chatData.name : '',
-            avatar: user?._id === item.receiver && chatData.avatar,
-          },
-        };
-      });
-
-      setMessages(messageData);
-
-      // console.log('object', data);
+    return () => {
+      mounted = false;
     };
-    CHATDATA();
-  }, []);
+  }, [chatData?.userId]);
+
+  // console.log(messages[0]);
 
   // console.log(messages);
 
   const onSend = useCallback((messages = []) => {
-    setMessages(previousMessages =>
+    setMessages((previousMessages: any) =>
       GiftedChat.append(previousMessages, messages),
     );
 
-    const sendToDb = async () => {
-      try {
-        const token = await AsyncStorage.getItem('tokenId');
-
-        const sendData = {
-          message: messages[0].text,
-          to: chatData._id,
-        };
-
-        const response = await fetch(
-          'https://talkieeapp.herokuapp.com/message/private',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(sendData),
-          },
-        );
-
-        const data = await response.json();
-      } catch (error) {
-        console.log(error);
-      }
+    let messageData = {
+      receiver: chatData.userId,
+      message: messages[0].text,
     };
-    sendToDb();
+
+    // console.log('mm', messageData);
+
+    socketRef?.current.emit('send-message', {
+      message: messages[0].text,
+      userId: user?._id,
+      conversationId: chatData?._id,
+      receiver: chatData?.userId,
+      sender: user?._id,
+      seen: false,
+      delivered: true,
+      createdAt: Date.now(),
+      _id: Date.now(),
+    });
+
+    fetchData(
+      {
+        method: 'POST',
+        path: BASE_URL + PRIVATE_MESSAGE,
+        body: JSON.stringify(messageData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+      (result, response) => {
+        // console.log(result);
+        if (response.status !== 200) {
+          Alert.alert('Error', result?.message);
+        }
+      },
+    );
   }, []);
+
   const renderBubble = (props: any) => {
     return (
       <Bubble
@@ -212,7 +231,7 @@ const ChatDetails = ({navigation, route}: Props) => {
               />
             </Box>
             <Box>
-              <Avatar size={10} source={{uri: chatData?.avatar}} />
+              <Avatar size={10} source={{uri: chatData?.profileImage}} />
             </Box>
             <VStack>
               <Text color={COLORS.textWhite} bold fontSize={16}>

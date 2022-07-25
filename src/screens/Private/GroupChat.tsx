@@ -1,20 +1,11 @@
-import {
-  Dimensions,
-  SafeAreaView,
-  StyleSheet,
-  FlatList,
-  PermissionsAndroid,
-} from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import React, {useState} from 'react';
 import {
-  Avatar,
   Box,
-  Center,
   Heading,
   HStack,
   Image,
   Modal,
-  PresenceTransition,
   Pressable,
   Row,
   ScrollView,
@@ -24,13 +15,11 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {COLORS} from 'configs';
 import {ProfileModal} from 'components/core';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {PrivateRoutesType} from 'routes';
 import {useNavigation} from '@react-navigation/native';
 import {NavigationProps} from 'routes';
 
 // import {PermissionsAndroid} from 'react-native';
-import Contacts from 'react-native-contacts';
+
 import AntDesign from 'react-native-vector-icons/AntDesign';
 const chatArr = [
   {
