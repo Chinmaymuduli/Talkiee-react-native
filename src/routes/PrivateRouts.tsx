@@ -5,6 +5,7 @@ import {
 } from '@react-navigation/native-stack';
 import {
   ChatDetails,
+  ContactsList,
   EditProfile,
   GroupChat,
   Home,
@@ -27,6 +28,9 @@ export type PrivateRoutesType = {
   };
   ProfileDetails: {
     item: any;
+  };
+  ContactsList: {
+    isGroup?: boolean;
   };
 };
 
@@ -57,6 +61,7 @@ const PrivateRoutes = () => {
         // }}
       />
       <Stack.Screen name="ProfileDetails" component={ProfileDetails} />
+      <Stack.Screen name="ContactsList" component={ContactsList} />
     </Stack.Navigator>
   );
 };
