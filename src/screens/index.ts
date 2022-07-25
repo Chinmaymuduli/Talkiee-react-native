@@ -11,3 +11,4 @@ export { default as Status } from './Private/Status';
 export { default as EditProfile } from './Private/EditProfile';
 export { default as ChatDetails } from './Private/ChatDetails';
 export { default as ProfileDetails } from './Private/ProfileDetails';
+export { default as ContactsList } from './Private/ContactsList';

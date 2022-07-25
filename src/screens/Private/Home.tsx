@@ -106,7 +106,10 @@ const Home = () => {
               size={25}
               color={COLORS.textWhite}
             />
-            <Pressable justifyContent={'center'} borderRadius={6}>
+            <Pressable
+              justifyContent={'center'}
+              borderRadius={6}
+              onPress={() => navigation.navigate('ContactsList', {})}>
               <AntDesign name="plus" color={'white'} size={28} />
             </Pressable>
           </HStack>

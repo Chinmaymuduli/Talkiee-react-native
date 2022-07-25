@@ -31,6 +31,7 @@ import {NavigationProps} from 'routes';
 
 // import {PermissionsAndroid} from 'react-native';
 import Contacts from 'react-native-contacts';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 const chatArr = [
   {
     id: 1,
@@ -77,24 +78,14 @@ const GroupChat = () => {
               size={25}
               color={COLORS.textWhite}
             />
-            <Pressable onPress={() => setOpen(!open)}>
-              <Ionicons
-                name="ellipsis-vertical"
-                size={24}
-                color={COLORS.textWhite}
-              />
+            <Pressable
+              onPress={() =>
+                navigation.navigate('ContactsList', {isGroup: true})
+              }>
+              <AntDesign name="plus" color={'white'} size={28} />
             </Pressable>
           </HStack>
         </Row>
-        <Modal isOpen={open} onClose={() => setOpen(false)} safeAreaTop={true}>
-          <Modal.Content w={180} style={styles.top}>
-            <Modal.Body>
-              <Box>
-                <Text>Create Group</Text>
-              </Box>
-            </Modal.Body>
-          </Modal.Content>
-        </Modal>
       </Box>
 
       {/* <Box> */}
