@@ -1,17 +1,14 @@
-import {ImageBackground, SafeAreaView, StyleSheet, Alert} from 'react-native';
+import {
+  ImageBackground,
+  SafeAreaView,
+  StyleSheet,
+  Alert,
+  Keyboard,
+} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
-import {
-  Avatar,
-  Box,
-  HStack,
-  Icon,
-  Modal,
-  Pressable,
-  Text,
-  VStack,
-} from 'native-base';
+import {Avatar, Box, HStack, Modal, Pressable, Text, VStack} from 'native-base';
 import {COLORS} from 'configs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Fontisto from 'react-native-vector-icons/Fontisto';
@@ -92,6 +89,19 @@ const ChatDetails = ({navigation, route}: Props) => {
     };
   }, [chatData?.userId]);
 
+  useEffect(() => {
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      socketRef?.current?.emit('typing-off', {
+        receiver: chatData?.userId,
+        sender: user?._id,
+      });
+    });
+
+    return () => {
+      hideSubscription.remove();
+    };
+  }, []);
+
   // console.log(messages[0]);
 
   // console.log(messages);
@@ -137,6 +147,17 @@ const ChatDetails = ({navigation, route}: Props) => {
       },
     );
   }, []);
+
+  const onChangeText = () => {
+    try {
+      socketRef?.current?.emit('typing-on', {
+        receiver: chatData?.userId,
+        sender: user?._id,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const renderBubble = (props: any) => {
     return (
@@ -290,17 +311,14 @@ const ChatDetails = ({navigation, route}: Props) => {
           flex: 1,
           marginTop: -30,
         }}>
-        {/* <Box
-          bg={COLORS.fadeBlack}
-          mt={-10}
-          borderTopRadius={30}
-          flex={1}
-          pl={2}> */}
         <GiftedChat
           messages={messages?.sort((a: any, b: any) => {
             return b.createdAt - a.createdAt;
           })}
           onSend={messages => onSend(messages)}
+          onInputTextChanged={(text: string) => {
+            onChangeText();
+          }}
           user={{
             _id: user?._id,
           }}

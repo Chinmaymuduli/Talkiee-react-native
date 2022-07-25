@@ -1,7 +1,5 @@
 import {Controller, useForm} from 'react-hook-form';
 import {GlobalStyles, LoginStyles} from 'styles';
-import LottieView from 'lottie-react-native';
-import {chattingAnimation} from 'assets';
 import {COLORS} from 'configs';
 import {
   Alert,
@@ -17,7 +15,6 @@ import {
   ArrowForwardIcon,
   Box,
   Button,
-  Center,
   FormControl,
   Heading,
   Input,
@@ -37,7 +34,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {CountryCode} from '../../constants';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PublicRoutesType} from 'routes';
-import auth from '@react-native-firebase/auth';
 import {useAppContext} from 'context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL, LOGIN} from '../../configs/pathConfig';
