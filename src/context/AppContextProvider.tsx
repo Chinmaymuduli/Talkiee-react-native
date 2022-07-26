@@ -91,7 +91,7 @@ const AppContextProvider: React.FC = ({children}) => {
             headers: {'Content-Type': 'application/json'},
           },
           (result, response) => {
-            console.log('result', result);
+            // console.log('result', result);
             if (response?.status === 200) {
               setUser(result?.data);
             }
@@ -143,7 +143,7 @@ const AppContextProvider: React.FC = ({children}) => {
   useEffect(() => {
     let mounted = true;
 
-    // console.log(deviceContact);
+    // console.log('contact', deviceContact);
 
     if (mounted) {
       if (!user?._id) {
@@ -162,6 +162,8 @@ const AppContextProvider: React.FC = ({children}) => {
           });
         }
       });
+
+      // console.log('zzz', contactData);
 
       let bodyData = {
         contacts: contactData,

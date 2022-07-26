@@ -2,9 +2,12 @@ import {InteractionManager, StyleSheet} from 'react-native';
 import React, {useState} from 'react';
 import {
   Box,
+  Center,
+  Fab,
   FlatList,
   Heading,
   HStack,
+  Icon,
   Pressable,
   Row,
   ScrollView,
@@ -16,6 +19,7 @@ import {PrivateRoutesType} from 'routes';
 import {COLORS} from 'configs';
 import {ContactsComponent} from 'components';
 import {useAppContext} from 'context';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ContactsList'>;
 const ContactsList = ({route, navigation}: Props) => {
@@ -74,6 +78,7 @@ const ContactsList = ({route, navigation}: Props) => {
               name: item?.name,
               status: item?.status,
               _id: item?._id,
+              // isGroup: route.params?.isGroup,
             }}
           />
         )}
@@ -108,6 +113,19 @@ const ContactsList = ({route, navigation}: Props) => {
           </>
         }
       />
+      {/* fab */}
+      {route.params?.isGroup ? (
+        <Box mr={4} mb={4}>
+          <Fab
+            renderInPortal={false}
+            shadow={2}
+            size="sm"
+            icon={
+              <Icon color="white" as={AntDesign} name="arrowright" size="lg" />
+            }
+          />
+        </Box>
+      ) : null}
     </Box>
   );
 };
