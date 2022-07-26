@@ -21,6 +21,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {ImagePicker} from 'components/core';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useAppContext} from 'context';
 
 const profileMenu = [
   {
@@ -63,8 +65,13 @@ const profileMenu = [
 const Profile = () => {
   const [profileimage, setprofileimage] = useState('');
   const [visiable, setVisiable] = useState(false);
+  const {setUser} = useAppContext();
   const handleDismiss = () => {
     setVisiable(false);
+  };
+  const logout = async () => {
+    const token = await AsyncStorage.removeItem('tokenId');
+    setUser({});
   };
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -147,7 +154,7 @@ const Profile = () => {
             ))}
           </Box>
           <Box px={4} mb={110}>
-            <Pressable>
+            <Pressable onPress={logout}>
               <HStack alignItems={'center'} justifyContent={'space-between'}>
                 <HStack alignItems={'center'} space={4}>
                   <Box bg={'#ef4444'} borderRadius={5}>

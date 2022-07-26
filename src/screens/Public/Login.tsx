@@ -69,7 +69,7 @@ const Login = ({navigation}: Props) => {
     try {
       setLoader(true);
 
-      const respose = await fetch(BASE_URL + LOGIN, {
+      const response = await fetch(BASE_URL + LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,16 +77,17 @@ const Login = ({navigation}: Props) => {
         body: JSON.stringify(loginData),
       });
 
-      const data = await respose.json();
+      const data = await response.json();
       console.log('object', data);
 
-      if (respose.status !== 200) {
+      if (response.status !== 200) {
         // navigation.navigate('Confirm');
         Alert.alert('Error', data.message);
         return;
       }
       await AsyncStorage.setItem('tokenId', data.data.token);
       setUser(data?.data.data);
+
       navigation.navigate('Home');
     } catch (error) {
       console.log(error);
