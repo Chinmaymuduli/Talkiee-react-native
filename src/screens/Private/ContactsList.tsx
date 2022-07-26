@@ -1,5 +1,5 @@
 import {InteractionManager, StyleSheet} from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Box,
   FlatList,
@@ -15,38 +15,16 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {PrivateRoutesType} from 'routes';
 import {COLORS} from 'configs';
 import {ContactsComponent} from 'components';
-
-const contactArr = [
-  {
-    id: 1,
-    name: 'John Doe',
-    avatar: 'https://source.unsplash.com/user/c_v_r',
-    status: 'Hey! i am using talkiee',
-  },
-  {
-    id: 2,
-    name: 'Sara Doe',
-    avatar:
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cGVyc29ufGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500',
-    status: 'Hey! i am using talkiee',
-  },
-  {
-    id: 3,
-    name: 'willey John',
-    avatar:
-      'https://images.unsplash.com/photo-1491349174775-aaafddd81942?crop=entropy&cs=tinysrgb&fm=jpg&ixlib=rb-1.2.1&q=60&raw_url=true&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTB8fHBlcnNvbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500',
-    status: 'Hey! i am using talkiee',
-  },
-  {
-    id: 4,
-    name: 'Vikram Doe',
-    avatar: 'https://source.unsplash.com/user/c_v_r',
-    status: 'Hey! i am using talkiee',
-  },
-];
+import {useAppContext} from 'context';
 
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ContactsList'>;
 const ContactsList = ({route, navigation}: Props) => {
+  const [myContacts, setMyContacts] = useState<any[]>([]);
+
+  const {contactUsers} = useAppContext();
+
+  console.log('contact', contactUsers);
+
   return (
     <Box flex={1}>
       <HStack
@@ -88,9 +66,18 @@ const ContactsList = ({route, navigation}: Props) => {
         </Text>
       </ScrollView> */}
       <FlatList
-        data={contactArr}
-        renderItem={({item}) => <ContactsComponent contacts={item} />}
-        keyExtractor={(item, index) => index.toString()}
+        data={contactUsers}
+        renderItem={({item}: any) => (
+          <ContactsComponent
+            contacts={{
+              profileImage: item?.profileImage,
+              name: item?.name,
+              status: item?.status,
+              _id: item?._id,
+            }}
+          />
+        )}
+        keyExtractor={(item: any, index) => index.toString()}
         ListHeaderComponent={
           <>
             {route.params?.isGroup ? null : (

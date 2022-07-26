@@ -15,6 +15,7 @@ type ContextType = {
   setUser?: any;
   deviceContact?: any;
   socketRef?: any;
+  contactUsers?: any;
 };
 
 export const AppContext = createContext<ContextType>({});
@@ -35,6 +36,8 @@ const AppContextProvider: React.FC = ({children}) => {
   });
 
   const [deviceContact, setDeviceContact] = useState<any>([]);
+
+  const [contactUsers, setContactUsers] = useState<any>([]);
 
   const [confirm, setConfirm] = useState<any>();
 
@@ -64,7 +67,6 @@ const AppContextProvider: React.FC = ({children}) => {
                   }),
                 };
               });
-              // console.log(contact);
               setDeviceContact(contact);
             })
             .catch(e => {
@@ -128,8 +130,6 @@ const AppContextProvider: React.FC = ({children}) => {
       if (!user?._id) {
         return;
       }
-      console.log('running');
-
       socketRef?.current?.on('connect', () => {
         socketRef?.current.emit('user-online', user?._id);
       });
@@ -182,12 +182,13 @@ const AppContextProvider: React.FC = ({children}) => {
         },
         (result, response) => {
           console.log(result);
+          if (response?.status === 200) {
+            setContactUsers(result?.data);
+          }
         },
       );
     }
   }, [user?._id, deviceContact]);
-
-  console.log(user?._id);
 
   const value = {
     isLoggedIn,
@@ -198,6 +199,7 @@ const AppContextProvider: React.FC = ({children}) => {
     setConfirm,
     deviceContact,
     socketRef,
+    contactUsers,
   };
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

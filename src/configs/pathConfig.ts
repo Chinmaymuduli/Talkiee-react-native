@@ -10,3 +10,5 @@ export const UPDATE_CONTACT: string = 'contact/update';
 export const GET_FRIENDS: string = 'friends';
 
 export const PRIVATE_MESSAGE: string = 'message/private';
+
+export const GET_USER_DETAILS: string = 'user/';

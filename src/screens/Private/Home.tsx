@@ -69,6 +69,7 @@ const Home = () => {
           path: BASE_URL + GET_FRIENDS,
         },
         (result, response) => {
+          // console.log(result);
           if (response?.status === 200) {
             setFriendsArray(result?.data);
           }
@@ -132,6 +133,7 @@ const Home = () => {
                     name: item?.user?.name,
                     userId: item?.user?._id,
                     profileImage: item?.user?.profileImage,
+                    conversationId: item?._id,
                   },
                 })
               }>

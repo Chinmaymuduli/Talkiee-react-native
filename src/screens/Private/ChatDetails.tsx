@@ -28,7 +28,6 @@ import {BASE_URL, PRIVATE_MESSAGE} from '../../configs/pathConfig';
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ChatDetails'>;
 
 type CHATDATA_TYPE = {
-  _id: string;
   name?: string;
   profileImage?: string;
   userId?: string;
@@ -51,6 +50,7 @@ const ChatDetails = ({navigation, route}: Props) => {
     let mounted = true;
 
     if (mounted) {
+      // console.log('chatData', chatData.userId);
       fetchData(
         {
           method: 'GET',
@@ -121,7 +121,7 @@ const ChatDetails = ({navigation, route}: Props) => {
     socketRef?.current.emit('send-message', {
       message: messages[0].text,
       userId: user?._id,
-      conversationId: chatData?._id,
+      // conversationId: chatData?._id,
       receiver: chatData?.userId,
       sender: user?._id,
       seen: false,
@@ -140,7 +140,7 @@ const ChatDetails = ({navigation, route}: Props) => {
         },
       },
       (result, response) => {
-        // console.log(result);
+        console.log('send message', result);
         if (response.status !== 200) {
           Alert.alert('Error', result?.message);
         }
