@@ -45,6 +45,12 @@ const ChatDetails = ({navigation, route}: Props) => {
   // console.log('chatData', chatData);
 
   useEffect(() => {
+    socketRef?.current?.on('message-receive', data => {
+      console.log('message ', data);
+    });
+  }, [socketRef]);
+
+  useEffect(() => {
     //fetch chat data
 
     let mounted = true;
