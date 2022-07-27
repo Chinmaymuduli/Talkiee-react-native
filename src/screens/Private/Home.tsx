@@ -24,6 +24,7 @@ import {BASE_URL, GET_FRIENDS} from '../../configs/pathConfig';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useAppContext} from 'context';
 
 type Message_Type = {
   _id: string;
@@ -57,6 +58,8 @@ const Home = () => {
 
   const {fetchData, loading} = useDbFetch();
 
+  const {user, socketRef} = useAppContext();
+
   useEffect(() => {
     let mounted = true;
     if (mounted) {
@@ -80,6 +83,12 @@ const Home = () => {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    socketRef?.current?.on('message-receive', (data: any) => {
+      console.log('message ', data);
+    });
+  }, [socketRef]);
 
   // console.log(friendsArray);
 
