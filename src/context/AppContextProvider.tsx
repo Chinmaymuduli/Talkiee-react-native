@@ -131,6 +131,7 @@ const AppContextProvider: React.FC = ({children}) => {
         return;
       }
       socketRef?.current?.on('connect', () => {
+        console.log('socket connected');
         socketRef?.current.emit('user-online', user?._id);
       });
     }
@@ -138,7 +139,7 @@ const AppContextProvider: React.FC = ({children}) => {
     return () => {
       mounted = false;
     };
-  }, [user?._id]);
+  }, [user]);
 
   useEffect(() => {
     let mounted = true;

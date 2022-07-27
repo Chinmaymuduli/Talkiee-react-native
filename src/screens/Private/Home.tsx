@@ -48,6 +48,7 @@ type FRIENDS_TYPE = {
   message: Message_Type;
   unseenMessages: number;
   user: MESSAGE_USER;
+  typingStatus?: boolean;
 };
 
 const Home = () => {
@@ -84,10 +85,65 @@ const Home = () => {
     };
   }, []);
 
+  console.log(friendsArray);
+
   useEffect(() => {
-    socketRef?.current?.on('message-receive', (data: any) => {
-      console.log('message ', data);
-    });
+    if (socketRef?.current) {
+      socketRef.current.on('message-receive', (data: any) => {
+        // console.log('socket received', data);
+        setFriendsArray((prev: FRIENDS_TYPE[]) => {
+          let filterData = prev?.map(item => {
+            if (item?.message?.conversationId === data?.conversationId) {
+              return {
+                ...item,
+                message: {
+                  ...item?.message,
+                  message: data?.message,
+                },
+              };
+            } else {
+              return item;
+            }
+          });
+
+          return filterData;
+        });
+      });
+      socketRef.current.on('typing-user', (data: any) => {
+        // console.log('typing received', data);
+        setFriendsArray((prev: FRIENDS_TYPE[]) => {
+          let filterData = prev?.map(item => {
+            if (item?.user?._id === data?.sender) {
+              return {
+                ...item,
+                typingStatus: true,
+              };
+            } else {
+              return item;
+            }
+          });
+
+          return filterData;
+        });
+      });
+      socketRef.current.on('typing-off-user', (data: any) => {
+        // console.log('typing received', data);
+        setFriendsArray((prev: FRIENDS_TYPE[]) => {
+          let filterData = prev?.map(item => {
+            if (item?.user?._id === data?.sender) {
+              return {
+                ...item,
+                typingStatus: false,
+              };
+            } else {
+              return item;
+            }
+          });
+
+          return filterData;
+        });
+      });
+    }
   }, [socketRef]);
 
   // console.log(friendsArray);
@@ -167,8 +223,13 @@ const Home = () => {
                   <Text fontFamily={'Nunito-Bold'} fontSize={16}>
                     {item?.user?.name}
                   </Text>
-                  <Text fontFamily={'Nunito-Regular'}>
-                    {item?.message?.message}
+                  <Text
+                    fontFamily={` ${
+                      item?.typingStatus ? 'Nunito-Bold' : 'Nunito-Regular'
+                    } `}>
+                    {item?.typingStatus === true
+                      ? 'Typing...'
+                      : item?.message?.message}
                   </Text>
                 </VStack>
                 <Text>

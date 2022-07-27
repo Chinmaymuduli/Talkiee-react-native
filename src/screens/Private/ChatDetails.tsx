@@ -31,6 +31,7 @@ type CHATDATA_TYPE = {
   name?: string;
   profileImage?: string;
   userId?: string;
+  status?: string;
 };
 
 const ChatDetails = ({navigation, route}: Props) => {
@@ -45,8 +46,24 @@ const ChatDetails = ({navigation, route}: Props) => {
   // console.log('chatData', chatData);
 
   useEffect(() => {
-    socketRef?.current?.on('message-receive', data => {
-      console.log('message ', data);
+    socketRef?.current?.on('message-receive', (data: any) => {
+      // console.log('message ', data);
+      if (data?.userId === chatData?.userId) {
+        let messages = [
+          {
+            _id: data?._id,
+            createdAt: new Date(data?.createdAt),
+            text: data?.message,
+            user: {
+              _id: data?.sender,
+            },
+          },
+        ];
+
+        setMessages((previousMessages: any) =>
+          GiftedChat.append(previousMessages, messages),
+        );
+      }
     });
   }, [socketRef]);
 
@@ -106,13 +123,15 @@ const ChatDetails = ({navigation, route}: Props) => {
     return () => {
       hideSubscription.remove();
     };
-  }, []);
+  });
 
   // console.log(messages[0]);
 
   // console.log(messages);
 
   const onSend = useCallback((messages = []) => {
+    console.log(messages);
+
     setMessages((previousMessages: any) =>
       GiftedChat.append(previousMessages, messages),
     );
@@ -146,7 +165,7 @@ const ChatDetails = ({navigation, route}: Props) => {
         },
       },
       (result, response) => {
-        console.log('send message', result);
+        // console.log('send message', result);
         if (response.status !== 200) {
           Alert.alert('Error', result?.message);
         }

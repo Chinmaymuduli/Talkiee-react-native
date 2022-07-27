@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import React from 'react';
 import {
   Box,
@@ -12,6 +12,7 @@ import {
 } from 'native-base';
 import {COLORS} from 'configs';
 import Feather from 'react-native-vector-icons/Feather';
+import Svg, {Circle} from 'react-native-svg';
 
 const Statusbar = [
   {
