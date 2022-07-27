@@ -6,6 +6,7 @@ import {NavigationProps} from 'routes';
 import {useDbFetch} from 'hooks';
 import {BASE_URL, GET_USER_DETAILS} from 'src/configs/pathConfig';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {COLORS} from 'configs';
 
 type CONTACTS_TYPE = {
   contacts: {
@@ -18,11 +19,25 @@ type CONTACTS_TYPE = {
 };
 const ContactsComponent = ({contacts}: CONTACTS_TYPE) => {
   const navigation = useNavigation<NavigationProps>();
-  const [selectedPeople, setSelectedPeople] = useState(false);
+  const [isselectedPeople, setIsSelectedPeople] = useState(false);
+  const [selectedPeople, setSelectedPeople] = useState([]);
 
-  console.log('contacts');
+  // console.log('contacts');
 
   const {fetchData, loading} = useDbFetch();
+  const selectGroupPeople = () => {
+    setIsSelectedPeople(true);
+    // setSelectedPeople((prev)=>{
+    //   let exist = prev.some(item=> item === contacts._id)
+
+    //   if(exist){
+    //    return prev.filter(groupContact=>groupContact !=== contacts._id)
+    //   } else{
+    //     return [...prev,contacts._id]
+    //   }
+
+    // })
+  };
 
   // useEffect(() => {
   //   let mounted = true;
@@ -40,25 +55,25 @@ const ContactsComponent = ({contacts}: CONTACTS_TYPE) => {
 
   return (
     <Pressable
-      onPress={
-        () =>
-          // !contacts.isGroup
-          // ?
-          navigation.navigate('ChatDetails', {
-            item: {
-              _id: contacts?._id,
-              name: contacts?.name,
-              userId: contacts?._id,
-              profileImage: contacts?.profileImage,
-            },
-          })
-        // : setSelectedPeople(true)
+      bg={!isselectedPeople ? 'white' : '#ecfeff'}
+      mb={2}
+      onPress={() =>
+        !contacts.isGroup
+          ? navigation.navigate('ChatDetails', {
+              item: {
+                _id: contacts?._id,
+                name: contacts?.name,
+                userId: contacts?._id,
+                profileImage: contacts?.profileImage,
+              },
+            })
+          : selectGroupPeople()
       }>
       <Row px={4} py={2} space={3} alignItems={'center'}>
         <Box>
-          {/* {!selectedPeople ? ( */}
-          <Avatar source={{uri: contacts.profileImage}} />
-          {/* ) : (
+          {!isselectedPeople ? (
+            <Avatar source={{uri: contacts.profileImage}} />
+          ) : (
             <Box
               bg={'green.400'}
               style={{
@@ -70,7 +85,7 @@ const ContactsComponent = ({contacts}: CONTACTS_TYPE) => {
               justifyContent={'center'}>
               <AntDesign name="check" size={25} color={'white'} />
             </Box>
-          )} */}
+          )}
 
           {/* <Image
             alt="image"

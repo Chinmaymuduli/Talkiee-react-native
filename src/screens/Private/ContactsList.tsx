@@ -30,7 +30,7 @@ const ContactsList = ({route, navigation}: Props) => {
   console.log('contact', contactUsers);
 
   return (
-    <Box flex={1}>
+    <Box flex={1} bg={'white'}>
       <HStack
         alignItems={'center'}
         justifyContent={'space-between'}
@@ -78,7 +78,7 @@ const ContactsList = ({route, navigation}: Props) => {
               name: item?.name,
               status: item?.status,
               _id: item?._id,
-              // isGroup: route.params?.isGroup,
+              isGroup: route.params?.isGroup,
             }}
           />
         )}
