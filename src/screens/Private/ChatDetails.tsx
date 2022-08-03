@@ -4,6 +4,8 @@ import {
   StyleSheet,
   Alert,
   Keyboard,
+  BackHandler,
+  AppState,
 } from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -24,54 +26,118 @@ import {useAppContext} from 'context';
 import {CHATBG} from 'assets';
 import {useDbFetch} from 'hooks';
 import {BASE_URL, PRIVATE_MESSAGE} from '../../configs/pathConfig';
+import {CHAT_DETAILS_DATA_TYPE} from 'types';
 
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ChatDetails'>;
 
-type CHATDATA_TYPE = {
-  name?: string;
-  profileImage?: string;
-  userId?: string;
-  status?: string;
-};
-
 const ChatDetails = ({navigation, route}: Props) => {
-  const chatData: CHATDATA_TYPE = route.params?.item;
   const [messages, setMessages] = useState<any>([]);
   const [open, setOpen] = useState<boolean>(false);
+  const [userTyping, setUserTyping] = useState<boolean>(false);
+  const [userOnline, setUserOnline] = useState<boolean>(false);
 
   const {fetchData, loading} = useDbFetch();
-
   const {user, socketRef} = useAppContext();
 
-  // console.log('chatData', chatData);
+  const chatData: CHAT_DETAILS_DATA_TYPE = route.params?.item;
+  const [userLastSeen, setUserLastSeen] = useState<string>(
+    chatData?.lastSeen || '',
+  );
+
+  //user Typing event this will fire the socket when user start and stop typing.
 
   useEffect(() => {
-    socketRef?.current?.on('message-receive', (data: any) => {
-      // console.log('message ', data);
-      if (data?.userId === chatData?.userId) {
-        let messages = [
-          {
-            _id: data?._id,
-            createdAt: new Date(data?.createdAt),
-            text: data?.message,
-            user: {
-              _id: data?.sender,
-            },
-          },
-        ];
-
-        setMessages((previousMessages: any) =>
-          GiftedChat.append(previousMessages, messages),
-        );
-      }
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+      socketRef?.current?.emit('typing-off', {
+        receiver: chatData?.userId,
+        sender: user?._id,
+      });
     });
-  }, [socketRef]);
+
+    const showsKeyboard = Keyboard.addListener('keyboardDidShow', () => {
+      socketRef?.current?.emit('typing-on', {
+        receiver: chatData?.userId,
+        sender: user?._id,
+      });
+    });
+
+    BackHandler.addEventListener('hardwareBackPress', handleNavigation);
+
+    const appStateListener = AppState.addEventListener(
+      'change',
+      (nextAppState: string) => {
+        if (nextAppState === 'background') {
+          socketRef?.current?.emit('typing-off', {
+            receiver: chatData?.userId,
+            sender: user?._id,
+          });
+        }
+      },
+    );
+
+    return () => {
+      hideSubscription.remove();
+      showsKeyboard.remove();
+      BackHandler.removeEventListener('hardwareBackPress', handleNavigation);
+      appStateListener.remove();
+    };
+  }, []);
+
+  //this socket event is for listening user receive message
 
   useEffect(() => {
-    //fetch chat data
-
     let mounted = true;
 
+    if (mounted) {
+      socketRef?.current?.on('message-receive', (data: any) => {
+        if (data?.userId === chatData?.userId) {
+          let messages = [
+            {
+              _id: data?._id,
+              createdAt: new Date(data?.createdAt),
+              text: data?.message,
+              user: {
+                _id: data?.sender,
+              },
+            },
+          ];
+
+          setMessages((previousMessages: any) =>
+            GiftedChat.append(previousMessages, messages),
+          );
+        }
+      });
+      socketRef?.current?.on('typing-user', (data: any) => {
+        if (data?.sender === chatData?.userId) {
+          setUserTyping(true);
+        }
+      });
+      socketRef?.current?.on('typing-off-user', (data: any) => {
+        if (data?.sender === chatData?.userId) {
+          setUserTyping(false);
+        }
+      });
+      socketRef?.current?.on('user-comes-online', (data: any) => {
+        if (data === chatData?.userId) {
+          setUserOnline(true);
+        }
+      });
+      socketRef?.current?.on('user-goes-offline', (data: any) => {
+        if (data?.userId === chatData?.userId) {
+          setUserOnline(false);
+          setUserLastSeen(data?.timestamps);
+        }
+      });
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [socketRef]);
+
+  //initial message fetching function
+
+  useEffect(() => {
+    let mounted = true;
     if (mounted) {
       // console.log('chatData', chatData.userId);
       fetchData(
@@ -83,7 +149,6 @@ const ChatDetails = ({navigation, route}: Props) => {
           },
         },
         (result, response) => {
-          // console.log('chat', result);
           if (response.status === 200) {
             let messageData = result?.data?.map((item: any) => {
               return {
@@ -100,7 +165,6 @@ const ChatDetails = ({navigation, route}: Props) => {
                 },
               };
             });
-
             setMessages(messageData);
           }
         },
@@ -112,26 +176,7 @@ const ChatDetails = ({navigation, route}: Props) => {
     };
   }, [chatData?.userId]);
 
-  useEffect(() => {
-    const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-      socketRef?.current?.emit('typing-off', {
-        receiver: chatData?.userId,
-        sender: user?._id,
-      });
-    });
-
-    return () => {
-      hideSubscription.remove();
-    };
-  });
-
-  // console.log(messages[0]);
-
-  // console.log(messages);
-
   const onSend = useCallback((messages = []) => {
-    console.log(messages);
-
     setMessages((previousMessages: any) =>
       GiftedChat.append(previousMessages, messages),
     );
@@ -140,8 +185,6 @@ const ChatDetails = ({navigation, route}: Props) => {
       receiver: chatData.userId,
       message: messages[0].text,
     };
-
-    // console.log('mm', messageData);
 
     socketRef?.current.emit('send-message', {
       message: messages[0].text,
@@ -165,24 +208,12 @@ const ChatDetails = ({navigation, route}: Props) => {
         },
       },
       (result, response) => {
-        // console.log('send message', result);
         if (response.status !== 200) {
           Alert.alert('Error', result?.message);
         }
       },
     );
   }, []);
-
-  const onChangeText = () => {
-    try {
-      socketRef?.current?.emit('typing-on', {
-        receiver: chatData?.userId,
-        sender: user?._id,
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const renderBubble = (props: any) => {
     return (
@@ -234,6 +265,21 @@ const ChatDetails = ({navigation, route}: Props) => {
     );
   };
 
+  const handleNavigation = () => {
+    try {
+      socketRef?.current?.emit('typing-off', {
+        receiver: chatData?.userId,
+        sender: user?._id,
+      });
+
+      navigation.goBack();
+
+      return true;
+    } catch (error: any) {
+      Alert.alert(error.message);
+    }
+  };
+
   const renderInputToolbar = (props: any) => {
     return <InputToolbar {...props} containerStyle={styles.input} />;
   };
@@ -242,7 +288,6 @@ const ChatDetails = ({navigation, route}: Props) => {
     return (
       <Box
         flexDirection={'row'}
-        // marginRight={1}
         bg={'#ecfeff'}
         paddingRight={2}
         alignItems={'center'}
@@ -273,7 +318,7 @@ const ChatDetails = ({navigation, route}: Props) => {
                 name="arrow-back"
                 size={30}
                 color="white"
-                onPress={() => navigation.goBack()}
+                onPress={() => handleNavigation()}
               />
             </Box>
             <Box>
@@ -283,7 +328,14 @@ const ChatDetails = ({navigation, route}: Props) => {
               <Text color={COLORS.textWhite} bold fontSize={16}>
                 {chatData?.name}
               </Text>
-              <Text color={COLORS.textWhite}>online</Text>
+
+              {userTyping ? (
+                <Text color={COLORS.cyan}>Typing...</Text>
+              ) : (
+                <Text color={COLORS.textWhite}>
+                  {userOnline ? 'Online' : userLastSeen}
+                </Text>
+              )}
             </VStack>
           </HStack>
           {/* //right side */}
@@ -341,9 +393,6 @@ const ChatDetails = ({navigation, route}: Props) => {
             return b.createdAt - a.createdAt;
           })}
           onSend={messages => onSend(messages)}
-          onInputTextChanged={(text: string) => {
-            onChangeText();
-          }}
           user={{
             _id: user?._id,
           }}
@@ -382,13 +431,9 @@ export default ChatDetails;
 const styles = StyleSheet.create({
   input: {
     borderRadius: 30,
-    // backgroundColor: '#ecfeff',
-    // marginLeft: 10,
     marginRight: 50,
     borderTopWidth: 0,
-    // backgroundColor: '#000',
     marginBottom: 2,
-    // alignItems: 'center',
   },
   top: {
     marginLeft: 'auto',

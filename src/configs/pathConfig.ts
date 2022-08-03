@@ -1,5 +1,5 @@
-export const BASE_URL: string = 'https://talkieeapp.herokuapp.com/';
-// export const BASE_URL: string = 'http://192.168.29.82:8000/';
+// export const BASE_URL: string = 'https://talkieeapp.herokuapp.com/';
+export const BASE_URL: string = 'http://192.168.29.82:8000/';
 
 export const GET_SELF: string = 'self';
 

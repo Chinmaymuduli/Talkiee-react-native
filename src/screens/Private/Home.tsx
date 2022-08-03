@@ -3,11 +3,8 @@ import React, {useEffect, useState} from 'react';
 import {
   Avatar,
   Box,
-  Fab,
   Heading,
   HStack,
-  Icon,
-  Image,
   Input,
   Modal,
   Pressable,
@@ -24,7 +21,6 @@ import {NavigationProps} from 'routes';
 import {useDbFetch} from 'hooks';
 import {BASE_URL, GET_FRIENDS} from '../../configs/pathConfig';
 import moment from 'moment';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useAppContext} from 'context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -44,6 +40,7 @@ type MESSAGE_USER = {
   gender?: string;
   name?: string;
   profileImage?: string;
+  lastSeen?: string;
 };
 
 type FRIENDS_TYPE = {
@@ -92,8 +89,6 @@ const Home = () => {
       mounted = false;
     };
   }, []);
-
-  // console.log(friendsArray);
 
   useEffect(() => {
     if (socketRef?.current) {
@@ -154,14 +149,10 @@ const Home = () => {
     }
   }, [socketRef]);
 
-  // console.log(friendsArray);
-
   const handelLongPress = (item: any) => {
     setSelectedItem(item._id);
     setSelectChat(true);
   };
-  // console.log('first', selectedItem);
-
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: COLORS.cyan}}>
       {!selectChat ? (
@@ -275,6 +266,7 @@ const Home = () => {
                     userId: item?.user?._id,
                     profileImage: item?.user?.profileImage,
                     conversationId: item?._id,
+                    lastSeen: item?.user?.lastSeen,
                   },
                 })
               }>
