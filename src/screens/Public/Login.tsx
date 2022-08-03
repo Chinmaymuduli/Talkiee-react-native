@@ -150,7 +150,7 @@ const Login = ({navigation}: Props) => {
             backgroundColor: COLORS.textWhite,
           },
         ]}>
-        <ScrollView>
+        <ScrollView keyboardShouldPersistTaps={'always'}>
           <Box
             // alignItems={'center'}
             justifyContent={'center'}
