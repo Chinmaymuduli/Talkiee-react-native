@@ -62,9 +62,9 @@ const Home = () => {
   // const [showModal, setShowModal] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
 
-  const {fetchData, loading} = useDbFetch();
+  const {fetchData} = useDbFetch();
 
-  const {user, socketRef} = useAppContext();
+  const {socketRef} = useAppContext();
 
   useEffect(() => {
     let mounted = true;
@@ -90,63 +90,79 @@ const Home = () => {
     };
   }, []);
 
+  const handleMessageReceive = (data: any) => {
+    console.log('socket received', data);
+    setFriendsArray((prev: FRIENDS_TYPE[]) => {
+      let filterData = prev?.map(item => {
+        if (item?.message?.conversationId === data?.conversationId) {
+          return {
+            ...item,
+            message: {
+              ...item?.message,
+              message: data?.message,
+            },
+          };
+        } else {
+          return item;
+        }
+      });
+
+      return filterData;
+    });
+  };
+
+  const handleUserTyping = (data: any) => {
+    console.log('typing received', data);
+    setFriendsArray((prev: FRIENDS_TYPE[]) => {
+      let filterData = prev?.map(item => {
+        if (item?.user?._id === data?.sender) {
+          return {
+            ...item,
+            typingStatus: true,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      return filterData;
+    });
+  };
+
+  const handleUserTypingOff = (data: any) => {
+    console.log('typing off received', data);
+    setFriendsArray((prev: FRIENDS_TYPE[]) => {
+      let filterData = prev?.map(item => {
+        if (item?.user?._id === data?.sender) {
+          return {
+            ...item,
+            typingStatus: false,
+          };
+        } else {
+          return item;
+        }
+      });
+
+      return filterData;
+    });
+  };
+
   useEffect(() => {
-    if (socketRef?.current) {
-      socketRef.current.on('message-receive', (data: any) => {
-        // console.log('socket received', data);
-        setFriendsArray((prev: FRIENDS_TYPE[]) => {
-          let filterData = prev?.map(item => {
-            if (item?.message?.conversationId === data?.conversationId) {
-              return {
-                ...item,
-                message: {
-                  ...item?.message,
-                  message: data?.message,
-                },
-              };
-            } else {
-              return item;
-            }
-          });
+    socketRef?.current?.on('message-receive', handleMessageReceive);
+    socketRef?.current?.on('typing-user', handleUserTyping);
+    socketRef?.current?.on('typing-off-user', handleUserTypingOff);
 
-          return filterData;
-        });
-      });
-      socketRef.current.on('typing-user', (data: any) => {
-        // console.log('typing received', data);
-        setFriendsArray((prev: FRIENDS_TYPE[]) => {
-          let filterData = prev?.map(item => {
-            if (item?.user?._id === data?.sender) {
-              return {
-                ...item,
-                typingStatus: true,
-              };
-            } else {
-              return item;
-            }
-          });
-
-          return filterData;
-        });
-      });
-      socketRef.current.on('typing-off-user', (data: any) => {
-        // console.log('typing received', data);
-        setFriendsArray((prev: FRIENDS_TYPE[]) => {
-          let filterData = prev?.map(item => {
-            if (item?.user?._id === data?.sender) {
-              return {
-                ...item,
-                typingStatus: false,
-              };
-            } else {
-              return item;
-            }
-          });
-
-          return filterData;
-        });
-      });
-    }
+    return () => {
+      socketRef?.current?.removeListener(
+        'message-receive',
+        handleMessageReceive,
+      );
+      socketRef?.current?.removeListener('typing-user', handleUserTyping);
+      socketRef?.current?.removeListener(
+        'typing-off-user',
+        handleUserTypingOff,
+      );
+    };
   }, [socketRef]);
 
   const handelLongPress = (item: any) => {

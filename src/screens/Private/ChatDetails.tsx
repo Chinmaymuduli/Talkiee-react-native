@@ -27,6 +27,7 @@ import {CHATBG} from 'assets';
 import {useDbFetch} from 'hooks';
 import {BASE_URL, PRIVATE_MESSAGE} from '../../configs/pathConfig';
 import {CHAT_DETAILS_DATA_TYPE} from 'types';
+import uuid from 'react-native-uuid';
 
 type Props = NativeStackScreenProps<PrivateRoutesType, 'ChatDetails'>;
 
@@ -85,52 +86,81 @@ const ChatDetails = ({navigation, route}: Props) => {
 
   //this socket event is for listening user receive message
 
-  useEffect(() => {
-    let mounted = true;
+  const handleReceiveMessage = (data: any) => {
+    console.log('receive', data);
+    if (data?.userId === chatData?.userId) {
+      let messages = [
+        {
+          _id: data?._id,
+          createdAt: new Date(data?.createdAt),
+          text: data?.message,
+          user: {
+            _id: data?.sender,
+          },
+        },
+      ];
 
-    if (mounted) {
-      socketRef?.current?.on('message-receive', (data: any) => {
-        if (data?.userId === chatData?.userId) {
-          let messages = [
-            {
-              _id: data?._id,
-              createdAt: new Date(data?.createdAt),
-              text: data?.message,
-              user: {
-                _id: data?.sender,
-              },
-            },
-          ];
-
-          setMessages((previousMessages: any) =>
-            GiftedChat.append(previousMessages, messages),
-          );
-        }
-      });
-      socketRef?.current?.on('typing-user', (data: any) => {
-        if (data?.sender === chatData?.userId) {
-          setUserTyping(true);
-        }
-      });
-      socketRef?.current?.on('typing-off-user', (data: any) => {
-        if (data?.sender === chatData?.userId) {
-          setUserTyping(false);
-        }
-      });
-      socketRef?.current?.on('user-comes-online', (data: any) => {
-        if (data === chatData?.userId) {
-          setUserOnline(true);
-        }
-      });
-      socketRef?.current?.on('user-goes-offline', (data: any) => {
-        if (data?.userId === chatData?.userId) {
-          setUserOnline(false);
-          setUserLastSeen(data?.timestamps);
-        }
-      });
+      setMessages((previousMessages: any) =>
+        GiftedChat.append(previousMessages, messages),
+      );
     }
+  };
+
+  const handleUserTyping = (data: any) => {
+    console.log('userTyping', data);
+
+    if (data?.sender === chatData?.userId) {
+      setUserTyping(true);
+    }
+  };
+
+  const handleUserTypingOff = (data: any) => {
+    console.log('userTypingOff', data);
+    if (data?.sender === chatData?.userId) {
+      setUserTyping(false);
+    }
+  };
+
+  const handleUserComesOnline = (data: any) => {
+    console.log('userOnline', data);
+    if (data === chatData?.userId) {
+      setUserOnline(true);
+    }
+  };
+
+  const handleUserGoesOffline = (data: any) => {
+    console.log('userOffline', data);
+    if (data?.userId === chatData?.userId) {
+      setUserOnline(false);
+      setUserLastSeen(data?.timestamps);
+    }
+  };
+
+  useEffect(() => {
+    socketRef?.current?.on('message-receive', handleReceiveMessage);
+    socketRef?.current?.on('typing-user', handleUserTyping);
+    socketRef?.current?.on('typing-off-user', handleUserTypingOff);
+    socketRef?.current?.on('user-comes-online', handleUserComesOnline);
+    socketRef?.current?.on('user-goes-offline', handleUserGoesOffline);
+
     return () => {
-      mounted = false;
+      socketRef?.current?.removeListener(
+        'message-receive',
+        handleReceiveMessage,
+      );
+      socketRef?.current?.removeListener('typing-user', handleUserTyping);
+      socketRef?.current?.removeListener(
+        'typing-off-user',
+        handleUserTypingOff,
+      );
+      socketRef?.current?.removeListener(
+        'user-comes-online',
+        handleUserComesOnline,
+      );
+      socketRef?.current?.removeListener(
+        'user-goes-offline',
+        handleUserGoesOffline,
+      );
     };
   }, [socketRef]);
 
@@ -194,8 +224,8 @@ const ChatDetails = ({navigation, route}: Props) => {
       sender: user?._id,
       seen: false,
       delivered: true,
-      createdAt: Date.now(),
-      _id: Date.now(),
+      createdAt: new Date(),
+      _id: uuid.v4(),
     });
 
     fetchData(
@@ -308,8 +338,8 @@ const ChatDetails = ({navigation, route}: Props) => {
   };
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <Box bg={COLORS.cyan} h={120} px={4} py={4}>
+    <SafeAreaView style={{flex: 1, backgroundColor: COLORS.cyan}}>
+      <Box px={4} py={4}>
         <HStack alignItems={'center'} justifyContent={'space-between'}>
           {/* //left side */}
           <HStack space={3}>
@@ -386,7 +416,6 @@ const ChatDetails = ({navigation, route}: Props) => {
         resizeMode={'cover'}
         style={{
           flex: 1,
-          marginTop: -30,
         }}>
         <GiftedChat
           messages={messages?.sort((a: any, b: any) => {
