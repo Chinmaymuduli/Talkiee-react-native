@@ -40,7 +40,7 @@ const GroupChat = () => {
   const navigation = useNavigation<NavigationProps>();
   const [showModal, setShowModal] = useState(false);
   const [item, setItem] = useState<any[]>();
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#06b6d4'}}>
       <Box bg={COLORS.cyan} position={'relative'} zIndex={9999}>
