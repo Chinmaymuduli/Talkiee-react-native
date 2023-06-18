@@ -57,8 +57,6 @@ const Login = ({navigation}: Props) => {
   const {setConfirm, setUser} = useAppContext();
 
   const onSubmit = async (data: any) => {
-    // console.log('object', data);
-
     const phoneNumber = `${phoneCode}${data.Number}`;
 
     const loginData = {
