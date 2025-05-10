@@ -43,7 +43,31 @@ const AppContextProvider: React.FC = ({children}) => {
 
   let {fetchData, loading} = useDbFetch();
 
-  const socketRef = useRef<any>(io(BASE_URL));
+  const socketRef = useRef<any>();
+
+  //socket connection
+
+  useEffect(() => {
+    let mounted = true;
+
+    if (mounted) {
+      socketRef.current = io(BASE_URL);
+
+      socketRef?.current?.on('connect', () => {
+        if (!user?._id) {
+          return;
+        }
+
+        console.log('socket connected');
+
+        socketRef?.current.emit('user-online', user?._id);
+      });
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [user, socketRef]);
 
   useEffect(() => {
     let mounted = true;
@@ -126,24 +150,6 @@ const AppContextProvider: React.FC = ({children}) => {
   useEffect(() => {
     let mounted = true;
 
-    if (mounted) {
-      if (!user?._id) {
-        return;
-      }
-      socketRef?.current?.on('connect', () => {
-        console.log('socket connected');
-        socketRef?.current.emit('user-online', user?._id);
-      });
-    }
-
-    return () => {
-      mounted = false;
-    };
-  }, [user]);
-
-  useEffect(() => {
-    let mounted = true;
-
     // console.log('contact', deviceContact);
 
     if (mounted) {
@@ -184,9 +190,11 @@ const AppContextProvider: React.FC = ({children}) => {
           },
         },
         (result, response) => {
-          console.log(result);
+          // console.log(result);
           if (response?.status === 200) {
             setContactUsers(result?.data);
+          } else {
+            console.log(result);
           }
         },
       );
